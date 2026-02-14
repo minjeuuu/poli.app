@@ -412,25 +412,114 @@ export const generateTimeline = async (topic: string): Promise<any> => {
 
 // ==================== PREDICTIONS & FORECASTING ====================
 
-export const generatePoliticalForecast = async (subject: string, timeframe: string): Promise<any> => {
+export const generatePoliticalForecast = async (
+  subject: string, 
+  timeframe: string,
+  forecastType: string = 'geopolitical',
+  region: string = 'Global'
+): Promise<any> => {
   const response = await generateWithRetry({
     model: 'claude-sonnet-4-20250514',
-    contents: `Generate political forecast for ${subject} over ${timeframe}.
-    
-    Include:
-    - currentSituation: Present state
-    - trends: Current trends
-    - scenarios: 3-5 possible scenarios (optimistic, pessimistic, realistic)
-    - probabilities: Likelihood of each scenario
-    - factors: Key factors that will determine outcomes
-    - wildcards: Unexpected events that could change everything
-    - recommendations: What to watch for
-    - implications: What each scenario means
-    
-    Base on realistic political analysis. Return JSON.`,
+    contents: `Generate comprehensive ${forecastType} forecast for: "${subject}" in ${region} over ${timeframe}.
+
+Provide detailed analysis in JSON format with:
+
+{
+  "title": "Forecast title",
+  "summary": "Executive summary (2-3 sentences)",
+  "confidence": <number 0-100>,
+  "timeframe": "${timeframe}",
+  "scenarios": [
+    {
+      "name": "Scenario name",
+      "probability": <0-100>,
+      "description": "Detailed description",
+      "implications": ["implication 1", "implication 2", "implication 3"],
+      "triggers": ["trigger 1", "trigger 2"]
+    }
+  ],
+  "keyFactors": ["factor 1", "factor 2", "factor 3", "factor 4", "factor 5"],
+  "indicators": [
+    {
+      "name": "Indicator name",
+      "current": "Current status",
+      "trend": "up|down|stable",
+      "impact": "high|medium|low"
+    }
+  ],
+  "wildcards": ["unexpected event 1", "unexpected event 2", "unexpected event 3"],
+  "recommendations": ["action 1", "action 2", "action 3"],
+  "relatedEvents": ["event 1", "event 2"],
+  "expertInsights": [
+    {
+      "perspective": "Expert perspective",
+      "analysis": "Analysis"
+    }
+  ]
+}
+
+Provide 4-6 realistic scenarios with probabilities.
+Include realistic key factors and indicators.
+Make recommendations actionable.`,
+    config: { responseMimeType: "application/json", maxOutputTokens: 4096 }
+  });
+  
+  return safeParse(response.text || '{}', {
+    title: 'Forecast Analysis',
+    summary: 'Analysis generated',
+    confidence: 75,
+    timeframe,
+    scenarios: [],
+    keyFactors: [],
+    indicators: [],
+    wildcards: [],
+    recommendations: [],
+    relatedEvents: [],
+    expertInsights: []
+  });
+};
+
+export const generatePoliticalScenario = async (topic: string, context?: string): Promise<any> => {
+  const response = await generateWithRetry({
+    model: 'claude-sonnet-4-20250514',
+    contents: `Create detailed "what-if" scenario analysis for: "${topic}"${context ? ` Context: ${context}` : ''}.
+
+Generate JSON with:
+{
+  "scenarioName": "Name of the scenario",
+  "initialTrigger": "What causes this scenario",
+  "timeline": [
+    {"timepoint": "T+0", "event": "Initial event", "consequences": ["consequence 1", "consequence 2"]},
+    {"timepoint": "T+1 month", "event": "Next development", "consequences": ["consequence 1"]},
+    {"timepoint": "T+6 months", "event": "Mid-term impact", "consequences": ["consequence 1"]},
+    {"timepoint": "T+1 year", "event": "Long-term outcome", "consequences": ["consequence 1"]}
+  ],
+  "stakeholders": [
+    {"actor": "Country/Organization", "response": "Their reaction", "interests": ["interest 1", "interest 2"]}
+  ],
+  "globalImpact": {
+    "political": "Political impact",
+    "economic": "Economic impact",
+    "social": "Social impact",
+    "security": "Security impact"
+  },
+  "counterfactuals": ["What if X happened instead", "Alternative path Y"],
+  "probability": <0-100>,
+  "implications": ["implication 1", "implication 2", "implication 3"]
+}`,
     config: { responseMimeType: "application/json", maxOutputTokens: 3072 }
   });
-  return safeParse(response.text || '{}', {});
+  
+  return safeParse(response.text || '{}', {
+    scenarioName: 'Scenario Analysis',
+    initialTrigger: '',
+    timeline: [],
+    stakeholders: [],
+    globalImpact: {},
+    counterfactuals: [],
+    probability: 50,
+    implications: []
+  });
 };
 
 // ==================== DAILY BRIEFING ====================

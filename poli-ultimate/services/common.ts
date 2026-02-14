@@ -49,7 +49,8 @@ export const getLanguageInstruction = (): string => {
   return "Respond in clear academic English.";
 };
 
-export const generateWithRetry = async (
+// Internal retry function
+const generateWithRetryInternal = async (
   options: GenerateConfig,
   retries = 2
 ): Promise<{ text: string }> => {
@@ -91,7 +92,7 @@ export const generateWithRetry = async (
   fallbackData: any = {}
 ): Promise<{ text: string }> => {
   try {
-    return await generateWithRetry(options, 2);
+    return await generateWithRetryInternal(options, 2);
   } catch (error) {
     console.error("AI generation failed, using fallback:", error);
     return { text: JSON.stringify(fallbackData) };

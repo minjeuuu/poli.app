@@ -28,7 +28,6 @@ import MessageTab from './components/tabs/MessageTab';
 import AlmanacTab from './components/tabs/AlmanacTab';
 // NEW AI-POWERED TABS
 import NewsHubTab from './components/tabs/NewsHubTab';
-import ForecastingTab from './components/tabs/ForecastingTab';
 import DebateArenaTab from './components/tabs/DebateArenaTab';
 import ResearchTab from './components/tabs/ResearchTab';
 import CrisisTrackerTab from './components/tabs/CrisisTrackerTab';

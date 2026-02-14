@@ -355,14 +355,3 @@ export default function ForecastingTab({ onNavigate }: ForecastingTabProps) {
     </div>
   );
 }
-
-// Crystal Ball icon component (since it's not in lucide-react)
-function CrystalBall({ className }: { className?: string }) {
-  return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-      <circle cx="12" cy="12" r="8" />
-      <path d="M12 4v16M4 12h16" opacity="0.5" />
-      <path d="M6 6l12 12M6 18L18 6" opacity="0.3" />
-    </svg>
-  );
-}

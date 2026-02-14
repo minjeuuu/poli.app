@@ -8,11 +8,13 @@ interface LayoutProps {
   children: React.ReactNode;
   activeTab: MainTab;
   onTabChange: (tab: MainTab) => void;
-  onNavigate: (type: string, payload: any) => void;
+  user?: any;
+  theme?: string;
+  onThemeChange?: (theme: SpecialTheme) => void;
   themeMode?: SpecialTheme;
 }
 
-const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange, onNavigate, themeMode = 'Default' }) => {
+const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange, user, theme, onThemeChange, themeMode = 'Default' }) => {
   const [isDark, setIsDark] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -137,7 +139,11 @@ const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange, onNav
   return (
     <div className={`flex flex-col h-screen transition-colors duration-500 overflow-hidden ${themeClasses}`}>
       
-      <GlobalHeader toggleTheme={toggleTheme} isDark={isDark} onNavigate={onNavigate} />
+      <GlobalHeader 
+        toggleTheme={toggleTheme} 
+        isDark={isDark} 
+        onNavigate={undefined} 
+      />
 
       <main className="flex-1 overflow-hidden relative pt-16">
         {(themeMode === 'War' || themeMode === 'Steampunk') && <div className="absolute inset-0 opacity-5 pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]"></div>}

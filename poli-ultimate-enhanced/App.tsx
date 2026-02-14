@@ -6,6 +6,7 @@ import { db } from './services/database';
 import { onAuthStateChanged, getCurrentUser, AuthUser } from './services/auth/localAuth';
 
 // Components
+import ErrorBoundary from './components/ErrorBoundary';
 import AuthScreen from './components/AuthScreen';
 import LaunchScreen from './components/LaunchScreen';
 import IntroScreen from './components/IntroScreen';
@@ -316,28 +317,30 @@ export default function App() {
   }
 
   if (initPhase === 'intro') {
-    return <IntroScreen onComplete={handleSkipIntro} />;
+    return <IntroScreen onContinue={handleSkipIntro} />;
   }
 
   // Main app
   return (
-    <div className="h-screen w-screen overflow-hidden bg-background" data-theme={currentTheme}>
-      <Suspense fallback={<LoadingScreen message="Loading content..." />}>
-        <Layout
-          activeTab={activeTab}
-          onTabChange={setActiveTab}
-          user={user}
-          theme={currentTheme}
-          onThemeChange={(theme) => {
-            setThemeMode(theme);
-            setThemeScope('None');
-          }}
-        >
-          {renderActiveTab()}
-        </Layout>
+    <ErrorBoundary>
+      <div className="h-screen w-screen overflow-hidden bg-background" data-theme={currentTheme}>
+        <Suspense fallback={<LoadingScreen message="Loading content..." />}>
+          <Layout
+            activeTab={activeTab}
+            onTabChange={setActiveTab}
+            user={user}
+            theme={currentTheme}
+            onThemeChange={(theme) => {
+              setThemeMode(theme);
+              setThemeScope('None');
+            }}
+          >
+            {renderActiveTab()}
+          </Layout>
 
-        {renderOverlay()}
-      </Suspense>
-    </div>
+          {renderOverlay()}
+        </Suspense>
+      </div>
+    </ErrorBoundary>
   );
 }

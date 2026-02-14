@@ -8,7 +8,7 @@ import { playSFX } from '../services/soundService';
 interface GlobalHeaderProps {
   toggleTheme: () => void;
   isDark: boolean;
-  onNavigate: (type: string, payload: any) => void;
+  onNavigate?: (type: string, payload: any) => void;
 }
 
 const GlobalHeader: React.FC<GlobalHeaderProps> = ({ toggleTheme, isDark, onNavigate }) => {
@@ -25,7 +25,7 @@ const GlobalHeader: React.FC<GlobalHeaderProps> = ({ toggleTheme, isDark, onNavi
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    if (searchQuery.trim()) {
+    if (searchQuery.trim() && onNavigate) {
       playSFX('swoosh');
       
       const { type, payload } = resolveSearchQuery(searchQuery);
@@ -38,7 +38,9 @@ const GlobalHeader: React.FC<GlobalHeaderProps> = ({ toggleTheme, isDark, onNavi
 
   const handleNotificationClick = (type: string, payload: any) => {
       playSFX('click');
-      onNavigate(type, payload);
+      if (onNavigate) {
+        onNavigate(type, payload);
+      }
       setShowNotifications(false);
   };
 
@@ -61,7 +63,7 @@ const GlobalHeader: React.FC<GlobalHeaderProps> = ({ toggleTheme, isDark, onNavi
         {/* LEFT: BRANDING */}
         <div className="flex items-center gap-4">
             <button 
-                onClick={() => onNavigate('Home', null)} 
+                onClick={() => onNavigate && onNavigate('Home', null)} 
                 className="flex items-center gap-3 group focus:outline-none flex-shrink-0"
             >
                 <div className="text-academic-accent dark:text-stone-100 group-hover:scale-105 transition-transform duration-200">
@@ -168,7 +170,7 @@ const GlobalHeader: React.FC<GlobalHeaderProps> = ({ toggleTheme, isDark, onNavi
 
             {/* PROFILE */}
             <button 
-                onClick={() => onNavigate('Profile', null)}
+                onClick={() => onNavigate && onNavigate('Profile', null)}
                 className="flex items-center gap-3 pl-2 pr-1 py-1 rounded-full hover:bg-stone-100 dark:hover:bg-stone-900 transition-all border border-transparent hover:border-stone-200 dark:hover:border-stone-800 flex-shrink-0"
             >
                 <div className="hidden md:block text-right">

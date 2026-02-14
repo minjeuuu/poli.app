@@ -1,0 +1,9 @@
+[credential "https://github.com"]
+	helper = 
+	helper = !auth auth git-credential
+[credential "https://gist.github.com"]
+	helper = 
+	helper = !auth auth git-credential
+[user]
+	email = corpuzmatthew0814@gmail.com
+	name = minjeuuu

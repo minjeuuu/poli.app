@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useMemo } from 'react';
 import { MainTab, DailyContext, SavedItem, UserProfile, ThemeScope, SpecialTheme } from './types';
 import { fetchDailyContext } from './services/homeService';
@@ -20,13 +19,13 @@ import TheoryTab from './components/tabs/TheoryTab';
 import PersonsTab from './components/tabs/PersonsTab';
 import LearnTab from './components/tabs/LearnTab';
 import SimTab from './components/tabs/SimTab';
-import GamesTab from './components/tabs/GamesTab'; // New Import
+import GamesTab from './components/tabs/GamesTab';
 import RatesTab from './components/tabs/RatesTab';
 import ProfileTab from './components/tabs/ProfileTab';
 import LibraryTab from './components/tabs/LibraryTab';
 import MessageTab from './components/tabs/MessageTab';
 import AlmanacTab from './components/tabs/AlmanacTab';
-// NEW AI-POWERED TABS
+// AI-POWERED TABS
 import NewsHubTab from './components/tabs/NewsHubTab';
 import DebateArenaTab from './components/tabs/DebateArenaTab';
 import ResearchTab from './components/tabs/ResearchTab';

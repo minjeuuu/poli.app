@@ -1,8 +1,28 @@
 
 import { generateWithRetry, cleanJson, withCache, getLanguageInstruction, safeParse } from "./common";
 import { PoliticalRecord } from "../types";
-import countriesData from "../data/countriesData";
-import personsData from "../data/personsData";
+import { COUNTRIES_DATA } from "../data/countriesData";
+import { PERSONS_HIERARCHY } from "../data/personsData";
+
+// Helper function to flatten nested person hierarchy
+const flattenPersons = (nodes: any[]): any[] => {
+    const result: any[] = [];
+    const traverse = (items: any[]) => {
+        for (const item of items) {
+            if (item.type === 'Person') {
+                result.push(item);
+            }
+            if (item.items && Array.isArray(item.items)) {
+                traverse(item.items);
+            }
+        }
+    };
+    traverse(nodes);
+    return result;
+};
+
+// Cache flattened persons list
+const personsData = flattenPersons(PERSONS_HIERARCHY);
 
 // Entity type detection result
 export interface EntityDetectionResult {
@@ -18,7 +38,7 @@ export const detectEntityType = async (query: string): Promise<EntityDetectionRe
     const q = query.toLowerCase().trim();
     
     // 1. DIRECT COUNTRY MATCH
-    const countryMatch = countriesData.find(c => 
+    const countryMatch = COUNTRIES_DATA.find(c => 
         c.name.toLowerCase() === q || 
         c.code?.toLowerCase() === q ||
         c.name.toLowerCase().includes(q)

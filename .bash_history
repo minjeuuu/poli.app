@@ -35,3 +35,26 @@ ssh-add -l
 eval "$(ssh-agent -s)"
 ssh-add ~/.ssh/id_ed25519
 ssh-add~/.ssh/id_ed25519_github
+unzip poli-ultimate-ULTRA-ENHANCED-WAVE3.zip
+git init
+git add .
+git commit -m "first commit"
+git branch -M main
+pkg install git openssh
+ssh-keygen -t ed25519 -C "minjeuuu@github.com"
+eval "$(ssh-agent -s)"
+ssh-add ~/.ssh/id_ed25519
+ssh-add ~/.ssh/id_ed28734
+ssh-add ~/.ssh/id_28734
+ls -la ~/.ssh
+ssh-keygen -t ed25519 -C "minjeuuu@github.com"
+ls -la ~/.ssh
+eval "$(ssh-agent -s)" ssh-add ~/.ssh/id_ed25519
+cat ~/.ssh/id_ed25519.pub
+ssh -T git@github.com
+git remote remove origin git remote add origin git@github.com:minjeuuu/poli.app.git
+git remote remove origin
+git remote add origin git@github.com:minjeuuu/poli.app.git
+git remote -v
+git push -u origin main
+exit

@@ -76,7 +76,7 @@ export default function App() {
   // Global Navigation Stack
   const [overlayStack, setOverlayStack] = useState<OverlayItem[]>([]);
 
-  // FIXED: Proper initialization sequence
+  // FIXED: Proper initialization sequence with diagnostics
   useEffect(() => {
     const initializeApp = async () => {
       try {
@@ -85,15 +85,28 @@ export default function App() {
         // Show launch screen for minimum 1.5 seconds
         await new Promise(resolve => setTimeout(resolve, 1500));
         
+        // Run system diagnostics
+        console.log('🔍 Running system diagnostics...');
+        
         // Initialize database
-        await db.init();
-        console.log('✅ Database initialized');
+        try {
+          await db.init();
+          console.log('✅ Database initialized');
+        } catch (dbError) {
+          console.error('⚠️ Database initialization failed:', dbError);
+          // Continue anyway - app can work without database
+        }
         
         // Load saved items
-        const saved = await db.execute("SELECT * FROM saved_items");
-        if (saved.success) {
-          setSavedItems(saved.rows);
-          console.log(`✅ Loaded ${saved.rows.length} saved items`);
+        try {
+          const saved = await db.execute("SELECT * FROM saved_items");
+          if (saved.success) {
+            setSavedItems(saved.rows);
+            console.log(`✅ Loaded ${saved.rows.length} saved items`);
+          }
+        } catch (savedError) {
+          console.warn('⚠️ Could not load saved items:', savedError);
+          // Continue with empty saved items
         }
         
         // Check authentication status
@@ -110,6 +123,8 @@ export default function App() {
         
       } catch (error) {
         console.error('❌ Initialization error:', error);
+        // Show error but still try to proceed
+        alert('Initialization error: ' + (error instanceof Error ? error.message : 'Unknown error'));
         // Still proceed to auth screen even on error
         setInitPhase('auth');
       }
@@ -320,23 +335,45 @@ export default function App() {
     return <IntroScreen onContinue={handleSkipIntro} />;
   }
 
-  // Main app
+  // FIXED: Main app with better error handling
+  console.log('🎨 Rendering main app, phase:', initPhase, 'authenticated:', isAuthenticated);
+  
   return (
     <ErrorBoundary>
-      <div className="h-screen w-screen overflow-hidden bg-background" data-theme={currentTheme}>
+      <div className="h-screen w-screen overflow-hidden bg-stone-50 dark:bg-stone-950" data-theme={currentTheme}>
         <Suspense fallback={<LoadingScreen message="Loading content..." />}>
-          <Layout
-            activeTab={activeTab}
-            onTabChange={setActiveTab}
-            user={user}
-            theme={currentTheme}
-            onThemeChange={(theme) => {
-              setThemeMode(theme);
-              setThemeScope('None');
-            }}
-          >
-            {renderActiveTab()}
-          </Layout>
+          {isAuthenticated ? (
+            <Layout
+              activeTab={activeTab}
+              onTabChange={setActiveTab}
+              user={user}
+              theme={currentTheme}
+              themeMode={currentTheme}
+              onThemeChange={(theme) => {
+                setThemeMode(theme);
+                setThemeScope('None');
+              }}
+            >
+              {renderActiveTab()}
+            </Layout>
+          ) : (
+            <div className="h-screen w-screen flex items-center justify-center bg-stone-50 dark:bg-stone-950">
+              <div className="text-center">
+                <h1 className="text-2xl font-bold text-stone-900 dark:text-stone-100 mb-4">
+                  Authentication Required
+                </h1>
+                <p className="text-stone-600 dark:text-stone-400">
+                  Please log in to continue
+                </p>
+                <button 
+                  onClick={() => setInitPhase('auth')}
+                  className="mt-4 px-6 py-2 bg-academic-accent text-white rounded-lg"
+                >
+                  Go to Login
+                </button>
+              </div>
+            </div>
+          )}
 
           {renderOverlay()}
         </Suspense>

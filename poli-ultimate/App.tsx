@@ -147,7 +147,7 @@ export default function App() {
     } else if (type === 'Logout') {
         handleLogout();
     } else {
-        if (['home','read','explore','messages','social','countries','sim','games','translate','comparative','theory','persons','learn','rates','profile', 'almanac', 'news', 'forecast', 'debate', 'research', 'crisis', 'policy', 'election', 'intel'].includes(type.toLowerCase())) {
+        if (['home','read','explore','messages','social','countries','sim','games','translate','comparative','theory','persons','learn','rates','profile', 'almanac', 'news', 'debate', 'research', 'crisis', 'policy', 'election', 'intel'].includes(type.toLowerCase())) {
             setActiveTab(type.toLowerCase() as MainTab);
             setOverlayStack([]);
         }

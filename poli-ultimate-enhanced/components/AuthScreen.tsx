@@ -1,22 +1,21 @@
 
 import React, { useState } from 'react';
 import Logo from './Logo';
-import { ArrowRight, User, Lock, Mail, Globe, ShieldCheck, AlertCircle, Chrome } from 'lucide-react';
+import { ArrowRight, User, Lock, Mail, Globe, ShieldCheck, AlertCircle, Sparkles } from 'lucide-react';
 import { playSFX } from '../services/soundService';
-import { signUp, signIn, signInWithGoogle, isFirebaseAvailable } from '../services/auth/localAuth';
+import { signUp, signIn, signInAsGuest } from '../services/auth/localAuth';
 
 interface AuthScreenProps {
   onLogin: (user: any) => void;
   onGuest: () => void;
 }
 
-const AuthScreen: React.FC<AuthScreenProps> = ({ onLogin, onGuest }) => {
+const AuthScreen: React.FC<AuthScreenProps> = ({ onLogin }) => {
   const [mode, setMode] = useState<'login' | 'signup'>('login');
   const [formData, setFormData] = useState({ email: '', password: '', username: '' });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
-  const firebaseEnabled = isFirebaseAvailable();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -60,27 +59,10 @@ const AuthScreen: React.FC<AuthScreenProps> = ({ onLogin, onGuest }) => {
     }
   };
 
-  const handleGoogleSignIn = async () => {
-    if (!firebaseEnabled) {
-      setError('Google sign-in requires Firebase configuration. Please use email/password or continue as guest.');
-      return;
-    }
-
+  const handleGuestLogin = () => {
     playSFX('click');
-    setLoading(true);
-    setError(null);
-
-    try {
-      const user = await signInWithGoogle();
-      playSFX('success');
-      onLogin(user);
-    } catch (err: any) {
-      console.error('Google sign-in error:', err);
-      setError(err.message || 'Google sign-in failed. Please try another method.');
-      playSFX('error');
-    } finally {
-      setLoading(false);
-    }
+    const guestUser = signInAsGuest();
+    onLogin(guestUser);
   };
 
   const switchMode = (m: 'login' | 'signup') => {

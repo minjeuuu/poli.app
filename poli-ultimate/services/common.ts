@@ -86,7 +86,7 @@ export const generateWithRetry = async (
 };
 
 // Main AI generation function with fallback to defaults
-export const generateWithFallback = async (
+export const generateWithRetry = async (
   options: GenerateConfig,
   fallbackData: any = {}
 ): Promise<{ text: string }> => {

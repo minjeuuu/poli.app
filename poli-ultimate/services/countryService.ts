@@ -1,10 +1,8 @@
-
-import { generateWithFallback, safeParse, withCache, getLanguageInstruction, deepMerge } from "./common";
+import { generateWithRetry, safeParse, withCache, getLanguageInstruction, deepMerge } from "./common";
 import { CountryDeepDive, ElectionDetail } from "../types";
-import { generateDefaultCountry } from "./countryFallback";
-import { STATIC_COUNTRIES } from "../data/staticCountries";
+import { generateCountryIntelligence } from "./aiPowerhouse";
 
-// Sub-services
+// Sub-services - All AI-powered
 import { fetchCountryNews } from "./country/countryNewsService";
 import { fetchCountryMaps } from "./country/countryMapService";
 import { fetchCountryImages } from "./country/countryImageService";
@@ -22,100 +20,102 @@ import { fetchEconomy } from "./country/countryEconomyService";
 import { fetchPolitics } from "./country/countryPoliticsService";
 import { fetchSymbols } from "./country/countrySymbolsService";
 import { fetchGeography } from "./country/countryGeographyService";
-// New Fetchers
 import { fetchEnvironmentProfile } from "./country/countryEnvironmentService";
 import { fetchTechProfile } from "./country/countryTechService";
 import { fetchSocietyProfile } from "./country/countrySocietyService";
 import { fetchTourismProfile } from "./country/countryTourismService";
 
 export const fetchCountryDeepDive = async (countryName: string): Promise<CountryDeepDive> => {
-    if (STATIC_COUNTRIES[countryName]) return STATIC_COUNTRIES[countryName];
-    
-    const cacheKey = `country_poli_v1_full_${countryName.replace(/\s+/g, '_')}`;
+    const cacheKey = `country_ai_full_${countryName.replace(/\s+/g, '_')}`;
     
     return withCache(cacheKey, async () => {
-        try {
-            const defaultData = generateDefaultCountry(countryName);
-            
-            // POLI SWARM: MASSIVE PARALLEL FETCH (Updated with new sections)
-            const [
-                identityData,
-                govData,
-                historyData,
-                legalData,
-                academicData,
-                infraData,
-                globalData,
-                newsData, 
-                mapsData, 
-                imagesData,
-                analysisData,
-                demographicsData,
-                economyData,
-                politicsData,
-                symbolsData,
-                geographyData,
-                // New Data
-                envData,
-                techData,
-                societyData,
-                tourismData
-            ] = await Promise.all([
-                fetchCountryIdentity(countryName),
-                fetchCountryGovernment(countryName),
-                fetchCountryHistory(countryName),
-                fetchLegalProfile(countryName),
-                fetchAcademicProfile(countryName),
-                fetchInfrastructureProfile(countryName),
-                fetchGlobalProfile(countryName),
-                fetchCountryNews(countryName),
-                fetchCountryMaps(countryName),
-                fetchCountryImages(countryName),
-                fetchCountryAnalysis(countryName),
-                fetchDemographics(countryName),
-                fetchEconomy(countryName),
-                fetchPolitics(countryName),
-                fetchSymbols(countryName),
-                fetchGeography(countryName),
-                fetchEnvironmentProfile(countryName),
-                fetchTechProfile(countryName),
-                fetchSocietyProfile(countryName),
-                fetchTourismProfile(countryName)
-            ]);
+        // Get comprehensive AI intelligence first
+        const aiIntelligence = await generateCountryIntelligence(countryName);
+        
+        // POLI SWARM: MASSIVE PARALLEL AI FETCH
+        const [
+            identityData,
+            govData,
+            historyData,
+            legalData,
+            academicData,
+            infraData,
+            globalData,
+            newsData, 
+            mapsData, 
+            imagesData,
+            analysisData,
+            demographicsData,
+            economyData,
+            politicsData,
+            symbolsData,
+            geographyData,
+            envData,
+            techData,
+            societyData,
+            tourismData
+        ] = await Promise.all([
+            fetchCountryIdentity(countryName),
+            fetchCountryGovernment(countryName),
+            fetchCountryHistory(countryName),
+            fetchLegalProfile(countryName),
+            fetchAcademicProfile(countryName),
+            fetchInfrastructureProfile(countryName),
+            fetchGlobalProfile(countryName),
+            fetchCountryNews(countryName),
+            fetchCountryMaps(countryName),
+            fetchCountryImages(countryName),
+            fetchCountryAnalysis(countryName),
+            fetchDemographics(countryName),
+            fetchEconomy(countryName),
+            fetchPolitics(countryName),
+            fetchSymbols(countryName),
+            fetchGeography(countryName),
+            fetchEnvironmentProfile(countryName),
+            fetchTechProfile(countryName),
+            fetchSocietyProfile(countryName),
+            fetchTourismProfile(countryName)
+        ]);
 
-            // Base Merge
-            let merged = deepMerge(defaultData, identityData);
-            merged = deepMerge(merged, govData);
-            merged = deepMerge(merged, historyData);
+        // Build comprehensive profile from AI intelligence
+        const merged: any = {
+            name: countryName,
+            capital: aiIntelligence.BASIC_INFO?.capital || '',
+            population: aiIntelligence.BASIC_INFO?.population || '',
+            area: aiIntelligence.BASIC_INFO?.area || '',
+            currency: aiIntelligence.BASIC_INFO?.currency || '',
+            languages: aiIntelligence.BASIC_INFO?.languages || [],
+            governmentType: aiIntelligence.BASIC_INFO?.governmentType || '',
             
-            // Attach specialized objects
-            merged.legal = legalData;
-            merged.academic = academicData;
-            merged.infrastructure = infraData;
-            merged.global = globalData;
-            merged.today.news = newsData;
-            merged.geography = deepMerge(merged.geography, geographyData);
-            merged.geography.maps = mapsData;
-            merged.imageArchive = imagesData;
+            // Leadership from AI
+            leadership: aiIntelligence.LEADERSHIP || {},
             
-            // Standard Sections
-            merged.analysis = analysisData;
-            merged.demographics = demographicsData;
-            merged.economy = deepMerge(merged.economy, economyData);
-            merged.politics = politicsData;
-            merged.symbols = symbolsData;
+            // Deep merge all fetched data
+            ...identityData,
+            government: govData,
+            history: historyData,
+            legal: legalData,
+            academic: academicData,
+            infrastructure: infraData,
+            global: globalData,
+            today: { news: newsData },
+            geography: { ...geographyData, maps: mapsData },
+            imageArchive: imagesData,
+            analysis: analysisData,
+            demographics: demographicsData,
+            economy: economyData,
+            politics: politicsData,
+            symbols: symbolsData,
+            environment: envData,
+            technology: techData,
+            society: societyData,
+            tourism: tourismData,
+            
+            // Additional AI intelligence
+            aiIntelligence // Keep full AI data for reference
+        };
 
-            // New Extended Sections (Attached loosely to keep type safety flexible if types aren't fully updated yet)
-            (merged as any).environment = envData;
-            (merged as any).technology = techData;
-            (merged as any).society = societyData;
-            (merged as any).tourism = tourismData;
-
-            return merged as CountryDeepDive;
-        } catch (e) { 
-            console.error("Country Fetch Critical Failure", e);
-            return generateDefaultCountry(countryName); 
-        }
+        return merged as CountryDeepDive;
     });
 };
 

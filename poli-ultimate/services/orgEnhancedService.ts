@@ -1,4 +1,4 @@
-import { generateWithFallback, safeParse } from "./common";
+import { generateWithRetry, safeParse } from "./common";
 
 export const fetchEnhancedOrgProfile = async (orgName: string) => {
     const prompt = `Generate comprehensive profile for the organization: ${orgName}.
@@ -67,7 +67,7 @@ export const fetchEnhancedOrgProfile = async (orgName: string) => {
     
     Return comprehensive JSON object.`;
 
-    const response = await generateWithFallback({
+    const response = await generateWithRetry({
         model: 'claude-sonnet-4-20250514',
         contents: prompt,
         config: { responseMimeType: "application/json", maxOutputTokens: 8192 }
@@ -104,7 +104,7 @@ export const fetchOrgComparativeAnalysis = async (orgs: string[]) => {
     
     Return detailed JSON comparison.`;
 
-    const response = await generateWithFallback({
+    const response = await generateWithRetry({
         model: 'claude-sonnet-4-20250514',
         contents: prompt,
         config: { responseMimeType: "application/json", maxOutputTokens: 6144 }
@@ -143,7 +143,7 @@ export const fetchOrgTimelineEvents = async (orgName: string) => {
         "category": "type of event"
     }`;
 
-    const response = await generateWithFallback({
+    const response = await generateWithRetry({
         model: 'claude-sonnet-4-20250514',
         contents: prompt,
         config: { responseMimeType: "application/json", maxOutputTokens: 7168 }
@@ -169,7 +169,7 @@ export const fetchOrgInfluenceNetwork = async (orgName: string) => {
     
     Return JSON network map.`;
 
-    const response = await generateWithFallback({
+    const response = await generateWithRetry({
         model: 'claude-sonnet-4-20250514',
         contents: prompt,
         config: { responseMimeType: "application/json", maxOutputTokens: 6144 }

@@ -1,4 +1,4 @@
-import { generateWithFallback, safeParse } from "./common";
+import { generateWithRetry, safeParse } from "./common";
 
 export const fetchPartyComprehensiveProfile = async (partyName: string, country: string) => {
     const prompt = `Generate exhaustive analysis of the political party: ${partyName} in ${country}.
@@ -234,7 +234,7 @@ export const fetchPartyComprehensiveProfile = async (partyName: string, country:
     
     Return comprehensive JSON with ALL sections fully populated.`;
 
-    const response = await generateWithFallback({
+    const response = await generateWithRetry({
         model: 'claude-sonnet-4-20250514',
         contents: prompt,
         config: { responseMimeType: "application/json", maxOutputTokens: 8192 }
@@ -281,7 +281,7 @@ export const fetchPartyElectoralDatabase = async (partyName: string, country: st
     
     Provide 50+ elections minimum.`;
 
-    const response = await generateWithFallback({
+    const response = await generateWithRetry({
         model: 'claude-sonnet-4-20250514',
         contents: prompt,
         config: { responseMimeType: "application/json", maxOutputTokens: 7168 }
@@ -309,7 +309,7 @@ export const fetchPartyLeadershipBiographies = async (partyName: string) => {
     
     Include 20+ leaders.`;
 
-    const response = await generateWithFallback({
+    const response = await generateWithRetry({
         model: 'claude-sonnet-4-20250514',
         contents: prompt,
         config: { responseMimeType: "application/json", maxOutputTokens: 6144 }

@@ -1,4 +1,4 @@
-import { generateWithFallback, safeParse } from "./common";
+import { generateWithRetry, safeParse } from "./common";
 
 export const fetchDisciplineComprehensiveProfile = async (disciplineName: string) => {
     const prompt = `Generate exhaustive analysis of the academic discipline: ${disciplineName}.
@@ -237,7 +237,7 @@ export const fetchDisciplineComprehensiveProfile = async (disciplineName: string
     
     Return comprehensive JSON with ALL sections fully populated with maximum detail.`;
 
-    const response = await generateWithFallback({
+    const response = await generateWithRetry({
         model: 'claude-sonnet-4-20250514',
         contents: prompt,
         config: { responseMimeType: "application/json", maxOutputTokens: 8192 }
@@ -283,7 +283,7 @@ export const fetchDisciplineReadingList = async (disciplineName: string) => {
     
     For each: {title, author, year, type, level, abstract, why_important, citations}`;
 
-    const response = await generateWithFallback({
+    const response = await generateWithRetry({
         model: 'claude-sonnet-4-20250514',
         contents: prompt,
         config: { responseMimeType: "application/json", maxOutputTokens: 7168 }
@@ -309,7 +309,7 @@ export const fetchDisciplineScholarDirectory = async (disciplineName: string) =>
     
     Cover historical and contemporary figures.`;
 
-    const response = await generateWithFallback({
+    const response = await generateWithRetry({
         model: 'claude-sonnet-4-20250514',
         contents: prompt,
         config: { responseMimeType: "application/json", maxOutputTokens: 7168 }

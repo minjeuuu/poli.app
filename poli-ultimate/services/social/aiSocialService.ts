@@ -1,4 +1,4 @@
-import { generateWithFallback, safeParse } from "../common";
+import { generateWithRetry, safeParse } from "../common";
 import { SocialPost } from "../../types";
 
 export const generateAIPost = async (topic?: string): Promise<SocialPost> => {
@@ -26,7 +26,7 @@ export const generateAIPost = async (topic?: string): Promise<SocialPost> => {
         }
     }`;
 
-    const response = await generateWithFallback({
+    const response = await generateWithRetry({
         model: 'claude-sonnet-4-20250514',
         contents: prompt,
         config: { responseMimeType: "application/json", maxOutputTokens: 1024 }
@@ -76,7 +76,7 @@ export const generateAIComment = async (postContent: string): Promise<any> => {
         "likes": number
     }`;
 
-    const response = await generateWithFallback({
+    const response = await generateWithRetry({
         model: 'claude-sonnet-4-20250514',
         contents: prompt,
         config: { responseMimeType: "application/json", maxOutputTokens: 512 }

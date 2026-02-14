@@ -1,4 +1,4 @@
-import { generateWithFallback, safeParse } from "./common";
+import { generateWithRetry, safeParse } from "./common";
 
 export const fetchEventComprehensiveProfile = async (eventName: string) => {
     const prompt = `Generate exhaustive analysis of the historical/political event: ${eventName}.
@@ -220,7 +220,7 @@ export const fetchEventComprehensiveProfile = async (eventName: string) => {
     
     Return comprehensive JSON with ALL sections fully populated with rich detail.`;
 
-    const response = await generateWithFallback({
+    const response = await generateWithRetry({
         model: 'claude-sonnet-4-20250514',
         contents: prompt,
         config: { responseMimeType: "application/json", maxOutputTokens: 8192 }
@@ -262,7 +262,7 @@ export const fetchEventParticipantNetwork = async (eventName: string) => {
     
     Include 50+ individuals across all categories.`;
 
-    const response = await generateWithFallback({
+    const response = await generateWithRetry({
         model: 'claude-sonnet-4-20250514',
         contents: prompt,
         config: { responseMimeType: "application/json", maxOutputTokens: 7168 }
@@ -289,7 +289,7 @@ export const fetchEventDocuments = async (eventName: string) => {
     For each: {title, date, author, type, summary, significance, location}
     Return 30+ documents.`;
 
-    const response = await generateWithFallback({
+    const response = await generateWithRetry({
         model: 'claude-sonnet-4-20250514',
         contents: prompt,
         config: { responseMimeType: "application/json", maxOutputTokens: 6144 }
@@ -313,7 +313,7 @@ export const fetchEventComparativeAnalysis = async (eventName: string) => {
     
     Return detailed comparative analysis.`;
 
-    const response = await generateWithFallback({
+    const response = await generateWithRetry({
         model: 'claude-sonnet-4-20250514',
         contents: prompt,
         config: { responseMimeType: "application/json", maxOutputTokens: 5120 }

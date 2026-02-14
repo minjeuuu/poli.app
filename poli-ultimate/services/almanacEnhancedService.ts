@@ -1,4 +1,4 @@
-import { generateWithFallback, safeParse } from "./common";
+import { generateWithRetry, safeParse } from "./common";
 
 export const fetchDailyAlmanac = async (date: Date) => {
     const dateKey = date.toISOString().split('T')[0];
@@ -89,7 +89,7 @@ export const fetchDailyAlmanac = async (date: Date) => {
     
     Return comprehensive JSON with all sections.`;
 
-    const response = await generateWithFallback({
+    const response = await generateWithRetry({
         model: 'claude-sonnet-4-20250514',
         contents: prompt,
         config: { responseMimeType: "application/json", maxOutputTokens: 8192 }
@@ -125,7 +125,7 @@ export const fetchYearInReview = async (year: number) => {
     
     Return comprehensive JSON.`;
 
-    const response = await generateWithFallback({
+    const response = await generateWithRetry({
         model: 'claude-sonnet-4-20250514',
         contents: prompt,
         config: { responseMimeType: "application/json", maxOutputTokens: 8192 }
@@ -161,7 +161,7 @@ export const fetchDecadeAnalysis = async (decade: string) => {
     
     Return comprehensive JSON.`;
 
-    const response = await generateWithFallback({
+    const response = await generateWithRetry({
         model: 'claude-sonnet-4-20250514',
         contents: prompt,
         config: { responseMimeType: "application/json", maxOutputTokens: 8192 }
@@ -187,7 +187,7 @@ export const fetchElectionCalendar = async (year: number) => {
     
     Return comprehensive JSON.`;
 
-    const response = await generateWithFallback({
+    const response = await generateWithRetry({
         model: 'claude-sonnet-4-20250514',
         contents: prompt,
         config: { responseMimeType: "application/json", maxOutputTokens: 8192 }
@@ -220,7 +220,7 @@ export const fetchPoliticalRecords = async (category: string) => {
     
     Return comprehensive JSON.`;
 
-    const response = await generateWithFallback({
+    const response = await generateWithRetry({
         model: 'claude-sonnet-4-20250514',
         contents: prompt,
         config: { responseMimeType: "application/json", maxOutputTokens: 7168 }
@@ -246,7 +246,7 @@ export const fetchPoliticalTrivia = async (difficulty: string) => {
     
     Return comprehensive JSON array.`;
 
-    const response = await generateWithFallback({
+    const response = await generateWithRetry({
         model: 'claude-sonnet-4-20250514',
         contents: prompt,
         config: { responseMimeType: "application/json", maxOutputTokens: 8192 }
@@ -274,7 +274,7 @@ export const fetchComparativeStats = async (metric: string) => {
     
     Return comprehensive JSON.`;
 
-    const response = await generateWithFallback({
+    const response = await generateWithRetry({
         model: 'claude-sonnet-4-20250514',
         contents: prompt,
         config: { responseMimeType: "application/json", maxOutputTokens: 8192 }
@@ -302,7 +302,7 @@ export const fetchPoliticalMilestones = async (category: string) => {
     
     Return chronological JSON.`;
 
-    const response = await generateWithFallback({
+    const response = await generateWithRetry({
         model: 'claude-sonnet-4-20250514',
         contents: prompt,
         config: { responseMimeType: "application/json", maxOutputTokens: 8192 }
@@ -330,7 +330,7 @@ export const fetchPoliticalDynasties = async () => {
     
     Return comprehensive JSON.`;
 
-    const response = await generateWithFallback({
+    const response = await generateWithRetry({
         model: 'claude-sonnet-4-20250514',
         contents: prompt,
         config: { responseMimeType: "application/json", maxOutputTokens: 7168 }
@@ -362,7 +362,7 @@ export const fetchConstitutionalDatabase = async () => {
     
     Return comprehensive JSON.`;
 
-    const response = await generateWithFallback({
+    const response = await generateWithRetry({
         model: 'claude-sonnet-4-20250514',
         contents: prompt,
         config: { responseMimeType: "application/json", maxOutputTokens: 8192 }
@@ -384,7 +384,7 @@ export const fetchTreatyDatabase = async () => {
     
     Return comprehensive JSON.`;
 
-    const response = await generateWithFallback({
+    const response = await generateWithRetry({
         model: 'claude-sonnet-4-20250514',
         contents: prompt,
         config: { responseMimeType: "application/json", maxOutputTokens: 8192 }
@@ -407,7 +407,7 @@ export const fetchWarDatabase = async () => {
     
     Return comprehensive JSON.`;
 
-    const response = await generateWithFallback({
+    const response = await generateWithRetry({
         model: 'claude-sonnet-4-20250514',
         contents: prompt,
         config: { responseMimeType: "application/json", maxOutputTokens: 8192 }
@@ -438,7 +438,7 @@ export const fetchLegislationDatabase = async (country: string) => {
     
     Return comprehensive JSON.`;
 
-    const response = await generateWithFallback({
+    const response = await generateWithRetry({
         model: 'claude-sonnet-4-20250514',
         contents: prompt,
         config: { responseMimeType: "application/json", maxOutputTokens: 8192 }
@@ -469,7 +469,7 @@ export const fetchSupremeCourtDatabase = async (country: string) => {
     
     Return comprehensive JSON.`;
 
-    const response = await generateWithFallback({
+    const response = await generateWithRetry({
         model: 'claude-sonnet-4-20250514',
         contents: prompt,
         config: { responseMimeType: "application/json", maxOutputTokens: 8192 }
@@ -501,7 +501,7 @@ export const fetchPoliticalQuotesDatabase = async () => {
     
     Return comprehensive JSON.`;
 
-    const response = await generateWithFallback({
+    const response = await generateWithRetry({
         model: 'claude-sonnet-4-20250514',
         contents: prompt,
         config: { responseMimeType: "application/json", maxOutputTokens: 8192 }

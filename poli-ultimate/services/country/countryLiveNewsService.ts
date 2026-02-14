@@ -1,4 +1,4 @@
-import { generateWithFallback, safeParse } from "./common";
+import { generateWithRetry, safeParse } from "./common";
 
 export const fetchCountryDailyNews = async (countryName: string) => {
     const today = new Date().toISOString().split('T')[0];
@@ -29,7 +29,7 @@ export const fetchCountryDailyNews = async (countryName: string) => {
     
     Make news realistic, current, and diverse. Return JSON array.`;
 
-    const response = await generateWithFallback({
+    const response = await generateWithRetry({
         model: 'claude-sonnet-4-20250514',
         contents: prompt,
         config: { responseMimeType: "application/json", maxOutputTokens: 5120 }
@@ -69,7 +69,7 @@ export const fetchCountryNewsAnalysis = async (countryName: string) => {
     
     Return comprehensive JSON analysis.`;
 
-    const response = await generateWithFallback({
+    const response = await generateWithRetry({
         model: 'claude-sonnet-4-20250514',
         contents: prompt,
         config: { responseMimeType: "application/json", maxOutputTokens: 4096 }
@@ -112,7 +112,7 @@ export const fetchCountryBreakingNews = async (countryName: string) => {
     
     Return 3-5 breaking news items if applicable, empty array if none.`;
 
-    const response = await generateWithFallback({
+    const response = await generateWithRetry({
         model: 'claude-sonnet-4-20250514',
         contents: prompt,
         config: { responseMimeType: "application/json", maxOutputTokens: 2048 }
@@ -139,7 +139,7 @@ export const fetchCountryMediaLandscape = async (countryName: string) => {
     
     Return comprehensive JSON mapping.`;
 
-    const response = await generateWithFallback({
+    const response = await generateWithRetry({
         model: 'claude-sonnet-4-20250514',
         contents: prompt,
         config: { responseMimeType: "application/json", maxOutputTokens: 5120 }
@@ -178,7 +178,7 @@ export const fetchCountryTrendingTopics = async (countryName: string) => {
     
     Return 10-15 trending topics.`;
 
-    const response = await generateWithFallback({
+    const response = await generateWithRetry({
         model: 'claude-sonnet-4-20250514',
         contents: prompt,
         config: { responseMimeType: "application/json", maxOutputTokens: 4096 }

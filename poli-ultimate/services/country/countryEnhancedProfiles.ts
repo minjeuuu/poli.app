@@ -1,4 +1,4 @@
-import { generateWithFallback, safeParse } from "../common";
+import { generateWithRetry, safeParse } from "../common";
 
 export const fetchCountryCulturalAnalysis = async (countryName: string) => {
     const prompt = `Generate comprehensive cultural analysis for ${countryName}.
@@ -17,7 +17,7 @@ export const fetchCountryCulturalAnalysis = async (countryName: string) => {
     
     Return comprehensive JSON object with all sections.`;
 
-    const response = await generateWithFallback({
+    const response = await generateWithRetry({
         model: 'claude-sonnet-4-20250514',
         contents: prompt,
         config: { responseMimeType: "application/json", maxOutputTokens: 8192 }
@@ -54,7 +54,7 @@ export const fetchCountryInnovationProfile = async (countryName: string) => {
     
     Return comprehensive JSON.`;
 
-    const response = await generateWithFallback({
+    const response = await generateWithRetry({
         model: 'claude-sonnet-4-20250514',
         contents: prompt,
         config: { responseMimeType: "application/json", maxOutputTokens: 6144 }
@@ -91,7 +91,7 @@ export const fetchCountryDiplomaticProfile = async (countryName: string) => {
     
     Return comprehensive JSON.`;
 
-    const response = await generateWithFallback({
+    const response = await generateWithRetry({
         model: 'claude-sonnet-4-20250514',
         contents: prompt,
         config: { responseMimeType: "application/json", maxOutputTokens: 7168 }
@@ -128,7 +128,7 @@ export const fetchCountryHealthEducationProfile = async (countryName: string) =>
     
     Return comprehensive JSON.`;
 
-    const response = await generateWithFallback({
+    const response = await generateWithRetry({
         model: 'claude-sonnet-4-20250514',
         contents: prompt,
         config: { responseMimeType: "application/json", maxOutputTokens: 6144 }

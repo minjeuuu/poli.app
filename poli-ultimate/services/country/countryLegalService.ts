@@ -1,5 +1,5 @@
 
-import { generateWithFallback, safeParse, getLanguageInstruction } from "../common";
+import { generateWithRetry, safeParse, getLanguageInstruction } from "../common";
 import { LegalProfile } from "../../types";
 
 export const fetchLegalProfile = async (countryName: string): Promise<LegalProfile> => {
@@ -19,7 +19,7 @@ export const fetchLegalProfile = async (countryName: string): Promise<LegalProfi
     ${getLanguageInstruction()}
     `;
 
-    const response = await generateWithFallback({
+    const response = await generateWithRetry({
         model: 'claude-sonnet-4-20250514',
         contents: prompt,
         config: { 
@@ -48,7 +48,7 @@ export const fetchSpecificLaw = async (countryName: string, query: string): Prom
     ${getLanguageInstruction()}
     `;
 
-    const response = await generateWithFallback({
+    const response = await generateWithRetry({
         model: 'claude-sonnet-4-20250514',
         contents: prompt,
         config: { 

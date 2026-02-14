@@ -26,6 +26,15 @@ import ProfileTab from './components/tabs/ProfileTab';
 import LibraryTab from './components/tabs/LibraryTab';
 import MessageTab from './components/tabs/MessageTab';
 import AlmanacTab from './components/tabs/AlmanacTab';
+// NEW AI-POWERED TABS
+import NewsHubTab from './components/tabs/NewsHubTab';
+import ForecastingTab from './components/tabs/ForecastingTab';
+import DebateArenaTab from './components/tabs/DebateArenaTab';
+import ResearchTab from './components/tabs/ResearchTab';
+import CrisisTrackerTab from './components/tabs/CrisisTrackerTab';
+import PolicyLabTab from './components/tabs/PolicyLabTab';
+import ElectionTrackerTab from './components/tabs/ElectionTrackerTab';
+import IntelBriefTab from './components/tabs/IntelBriefTab';
 
 // Detail Screens
 import CountryDetailScreen from './components/country/CountryDetailScreen';
@@ -139,7 +148,7 @@ export default function App() {
     } else if (type === 'Logout') {
         handleLogout();
     } else {
-        if (['home','read','explore','messages','social','countries','sim','games','translate','comparative','theory','persons','learn','rates','profile', 'almanac'].includes(type.toLowerCase())) {
+        if (['home','read','explore','messages','social','countries','sim','games','translate','comparative','theory','persons','learn','rates','profile', 'almanac', 'news', 'forecast', 'debate', 'research', 'crisis', 'policy', 'election', 'intel'].includes(type.toLowerCase())) {
             setActiveTab(type.toLowerCase() as MainTab);
             setOverlayStack([]);
         }
@@ -361,6 +370,30 @@ export default function App() {
                 setGlobalTheme={setThemeMode}
                 currentTheme={themeMode}
             />
+        </div>
+        <div style={{ display: activeTab === 'news' ? 'block' : 'none', height: '100%' }}>
+            <NewsHubTab onNavigate={handleNavigate} />
+        </div>
+        <div style={{ display: activeTab === 'forecast' ? 'block' : 'none', height: '100%' }}>
+            <ForecastingTab onNavigate={handleNavigate} />
+        </div>
+        <div style={{ display: activeTab === 'debate' ? 'block' : 'none', height: '100%' }}>
+            <DebateArenaTab onNavigate={handleNavigate} />
+        </div>
+        <div style={{ display: activeTab === 'research' ? 'block' : 'none', height: '100%' }}>
+            <ResearchTab onNavigate={handleNavigate} />
+        </div>
+        <div style={{ display: activeTab === 'crisis' ? 'block' : 'none', height: '100%' }}>
+            <CrisisTrackerTab onNavigate={handleNavigate} />
+        </div>
+        <div style={{ display: activeTab === 'policy' ? 'block' : 'none', height: '100%' }}>
+            <PolicyLabTab onNavigate={handleNavigate} />
+        </div>
+        <div style={{ display: activeTab === 'election' ? 'block' : 'none', height: '100%' }}>
+            <ElectionTrackerTab onNavigate={handleNavigate} />
+        </div>
+        <div style={{ display: activeTab === 'intel' ? 'block' : 'none', height: '100%' }}>
+            <IntelBriefTab onNavigate={handleNavigate} />
         </div>
       </div>
     </Layout>

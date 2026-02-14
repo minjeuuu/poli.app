@@ -3,7 +3,7 @@
 // types.ts (Partial update for interfaces)
 // ... keeping existing imports ...
 
-export type MainTab = 'home' | 'explore' | 'countries' | 'persons' | 'theory' | 'read' | 'almanac' | 'comparative' | 'sim' | 'games' | 'learn' | 'rates' | 'social' | 'messages' | 'profile' | 'translate';
+export type MainTab = 'home' | 'explore' | 'countries' | 'persons' | 'theory' | 'read' | 'almanac' | 'comparative' | 'sim' | 'games' | 'learn' | 'rates' | 'social' | 'messages' | 'profile' | 'translate' | 'news' | 'forecast' | 'debate' | 'research' | 'crisis' | 'policy' | 'election' | 'intel';
 
 export type SpecialTheme = 'Default' | 'War' | 'Tech' | 'Cyberpunk' | 'Christmas' | 'NewYear' | 'ChineseNewYear' | 'Royal' | 'Revolution' | 'Retro' | 'Neon' | 'Nature' | 'Corporate' | 'Midnight' | 'Sunset' | 'Ocean' | 'Forest' | 'Desert' | 'Lavender' | 'Mint' | 'Coffee' | 'Steel' | 'Matrix' | 'Steampunk' | 'Vaporwave' | 'Noir' | 'Synth' | 'Solar' | 'Lunar' | 'Arctic' | 'Volcanic' | 'Jungle' | 'Monochrome' | 'Sepia' | 'Velvet' | 'Slate';
 

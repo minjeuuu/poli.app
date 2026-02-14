@@ -1,4 +1,4 @@
-import { generateWithFallback, safeParse } from "../common";
+import { generateWithRetry, safeParse } from "../common";
 
 export interface ChatMessage {
     id: string;
@@ -56,7 +56,7 @@ export const generateDynamicChannels = async (): Promise<ChatChannel[]> => {
     
     Make channels feel alive and engaging.`;
 
-    const response = await generateWithFallback({
+    const response = await generateWithRetry({
         model: 'claude-sonnet-4-20250514',
         contents: prompt,
         config: { responseMimeType: "application/json", maxOutputTokens: 3072 }
@@ -107,7 +107,7 @@ export const sendMessage = async (
     Return JSON array: [{sender, content, avatar, tone}]
     Make it feel like a real, dynamic political discussion.`;
 
-    const response = await generateWithFallback({
+    const response = await generateWithRetry({
         model: 'claude-sonnet-4-20250514',
         contents: prompt,
         config: { responseMimeType: "application/json", maxOutputTokens: 1024 }
@@ -152,7 +152,7 @@ export const loadChannelMessages = async (
     Return JSON array: [{sender, content, timestamp, avatar}]
     Make it feel like walking into an active discussion.`;
 
-    const response = await generateWithFallback({
+    const response = await generateWithRetry({
         model: 'claude-sonnet-4-20250514',
         contents: prompt,
         config: { responseMimeType: "application/json", maxOutputTokens: 4096 }
@@ -221,7 +221,7 @@ export const replyToMessage = async (
     
     Return JSON: {sender, content, avatar}`;
 
-    const response = await generateWithFallback({
+    const response = await generateWithRetry({
         model: 'claude-sonnet-4-20250514',
         contents: prompt,
         config: { responseMimeType: "application/json", maxOutputTokens: 512 }
@@ -262,7 +262,7 @@ export const searchMessages = async (
     
     Return JSON array of messages.`;
 
-    const response = await generateWithFallback({
+    const response = await generateWithRetry({
         model: 'claude-sonnet-4-20250514',
         contents: prompt,
         config: { responseMimeType: "application/json", maxOutputTokens: 1024 }
@@ -343,7 +343,7 @@ export const sendMessageWithAttachment = async (
 
     const prompt = `User shared a ${attachment.type} with message: "${messageText}". Generate response acknowledging it. Return JSON: {sender, content, avatar}`;
 
-    const response = await generateWithFallback({
+    const response = await generateWithRetry({
         model: 'claude-sonnet-4-20250514',
         contents: prompt,
         config: { responseMimeType: "application/json", maxOutputTokens: 512 }

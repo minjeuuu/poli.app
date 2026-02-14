@@ -1,4 +1,4 @@
-import { generateWithFallback, safeParse } from "../common";
+import { generateWithRetry, safeParse } from "../common";
 
 export interface ChatMessage {
     id: string;
@@ -42,7 +42,7 @@ export const generateChatChannels = async (): Promise<ChatChannel[]> => {
         "topic": "topic category"
     }`;
 
-    const response = await generateWithFallback({
+    const response = await generateWithRetry({
         model: 'claude-sonnet-4-20250514',
         contents: prompt,
         config: { responseMimeType: "application/json", maxOutputTokens: 2048 }
@@ -112,7 +112,7 @@ export const generateChatResponse = async (
         "avatar": "emoji representing the speaker"
     }`;
 
-    const response = await generateWithFallback({
+    const response = await generateWithRetry({
         model: 'claude-sonnet-4-20250514',
         contents: prompt,
         config: { responseMimeType: "application/json", maxOutputTokens: 512 }
@@ -155,7 +155,7 @@ export const generateChannelMessages = async (
         "avatar": "emoji"
     }`;
 
-    const response = await generateWithFallback({
+    const response = await generateWithRetry({
         model: 'claude-sonnet-4-20250514',
         contents: prompt,
         config: { responseMimeType: "application/json", maxOutputTokens: 3072 }

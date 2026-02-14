@@ -1,4 +1,4 @@
-import { generateWithFallback, safeParse } from "./common";
+import { generateWithRetry, safeParse } from "./common";
 
 export const fetchTheoryComprehensiveAnalysis = async (theoryName: string) => {
     const prompt = `Generate an exhaustive analysis of the political theory/ideology: ${theoryName}.
@@ -103,7 +103,7 @@ export const fetchTheoryComprehensiveAnalysis = async (theoryName: string) => {
     
     Return comprehensive JSON with all sections.`;
 
-    const response = await generateWithFallback({
+    const response = await generateWithRetry({
         model: 'claude-sonnet-4-20250514',
         contents: prompt,
         config: { responseMimeType: "application/json", maxOutputTokens: 8192 }
@@ -146,7 +146,7 @@ export const fetchIdeologyComparison = async (ideologies: string[]) => {
     
     Return detailed JSON comparison matrix.`;
 
-    const response = await generateWithFallback({
+    const response = await generateWithRetry({
         model: 'claude-sonnet-4-20250514',
         contents: prompt,
         config: { responseMimeType: "application/json", maxOutputTokens: 6144 }
@@ -169,7 +169,7 @@ export const fetchTheoryDebates = async (theoryName: string) => {
     For each debate: {title, participants, positions, arguments, counterarguments, current_status, significance}
     Return 15+ major debates.`;
 
-    const response = await generateWithFallback({
+    const response = await generateWithRetry({
         model: 'claude-sonnet-4-20250514',
         contents: prompt,
         config: { responseMimeType: "application/json", maxOutputTokens: 5120 }
@@ -194,7 +194,7 @@ export const fetchTheoryReadingList = async (theoryName: string) => {
     For each: {title, author, year, type, level, summary, why_important}
     Return 40+ items across categories.`;
 
-    const response = await generateWithFallback({
+    const response = await generateWithRetry({
         model: 'claude-sonnet-4-20250514',
         contents: prompt,
         config: { responseMimeType: "application/json", maxOutputTokens: 6144 }
@@ -229,7 +229,7 @@ export const fetchTheoryCaseStudies = async (theoryName: string) => {
     
     Provide 10+ detailed case studies.`;
 
-    const response = await generateWithFallback({
+    const response = await generateWithRetry({
         model: 'claude-sonnet-4-20250514',
         contents: prompt,
         config: { responseMimeType: "application/json", maxOutputTokens: 7168 }

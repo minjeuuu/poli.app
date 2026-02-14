@@ -1,4 +1,4 @@
-import { generateWithFallback, safeParse } from "./common";
+import { generateWithRetry, safeParse } from "./common";
 
 export const fetchPersonComprehensiveProfile = async (personName: string) => {
     const prompt = `Generate an extremely comprehensive profile for ${personName}.
@@ -86,7 +86,7 @@ export const fetchPersonComprehensiveProfile = async (personName: string) => {
     
     Return comprehensive JSON with all sections populated.`;
 
-    const response = await generateWithFallback({
+    const response = await generateWithRetry({
         model: 'claude-sonnet-4-20250514',
         contents: prompt,
         config: { responseMimeType: "application/json", maxOutputTokens: 8192 }
@@ -124,7 +124,7 @@ export const fetchPersonTimeline = async (personName: string) => {
     Return JSON array with: {year, date, age, event, category, significance, location}
     Include 30+ events minimum.`;
 
-    const response = await generateWithFallback({
+    const response = await generateWithRetry({
         model: 'claude-sonnet-4-20250514',
         contents: prompt,
         config: { responseMimeType: "application/json", maxOutputTokens: 6144 }
@@ -146,7 +146,7 @@ export const fetchPersonQuotes = async (personName: string) => {
     
     Return JSON array.`;
 
-    const response = await generateWithFallback({
+    const response = await generateWithRetry({
         model: 'claude-sonnet-4-20250514',
         contents: prompt,
         config: { responseMimeType: "application/json", maxOutputTokens: 4096 }
@@ -172,7 +172,7 @@ export const fetchPersonRelationshipNetwork = async (personName: string) => {
     For each person include: {name, relationship, years, description, impact}
     Return JSON object organized by category.`;
 
-    const response = await generateWithFallback({
+    const response = await generateWithRetry({
         model: 'claude-sonnet-4-20250514',
         contents: prompt,
         config: { responseMimeType: "application/json", maxOutputTokens: 5120 }
@@ -195,7 +195,7 @@ export const fetchPersonControversies = async (personName: string) => {
     For each: {title, year, description, participants, outcome, lasting_impact, scholarly_debate}
     Return JSON array with 10+ controversies.`;
 
-    const response = await generateWithFallback({
+    const response = await generateWithRetry({
         model: 'claude-sonnet-4-20250514',
         contents: prompt,
         config: { responseMimeType: "application/json", maxOutputTokens: 4096 }
@@ -221,7 +221,7 @@ export const fetchPersonLegacyAnalysis = async (personName: string) => {
     
     Return comprehensive JSON analysis.`;
 
-    const response = await generateWithFallback({
+    const response = await generateWithRetry({
         model: 'claude-sonnet-4-20250514',
         contents: prompt,
         config: { responseMimeType: "application/json", maxOutputTokens: 6144 }

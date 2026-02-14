@@ -58,3 +58,15 @@ git remote add origin git@github.com:minjeuuu/poli.app.git
 git remote -v
 git push -u origin main
 exit
+unzip poli-ultimate-FIXED.zip
+git init
+git add .
+git commit -m "second commit"
+git branch -M main
+git remote add origin https://github.com/minjeuuu/poli.app.git
+git remote remove origin
+git remote add origin git@github.com:minjeuuu/poli.app.git
+git push -u origin main
+git pull origin main --rebase
+git push -u origin main
+exit

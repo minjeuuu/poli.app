@@ -1,3 +1,3 @@
 
-import { generateWithFallback } from "../common";
+import { generateWithRetry } from "../common";
 export const fetchAncientHistory = async (countryName: string) => { return {}; };

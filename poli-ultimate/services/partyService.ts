@@ -1,64 +1,45 @@
 
-import { generateWithRetry, safeParse, withCache, getLanguageInstruction, deepMerge } from "./common";
+import { generateWithRetry, safeParse, withCache, getLanguageInstruction } from "./common";
 import { PoliticalPartyDetail } from "../types";
 
-const FALLBACK_PARTY: PoliticalPartyDetail = {
-    name: "Political Party",
-    founded: "Unknown",
-    headquarters: "Unknown",
-    ideology: "Unknown",
-    politicalPosition: "Unknown",
-    currentLeader: "Unknown",
-    colors: [],
-    history: "Information unavailable.",
-    keyMembers: [],
-    platform: "Platform details unavailable."
-};
-
 export const fetchPartyDetail = async (name: string, country: string): Promise<PoliticalPartyDetail> => {
-    const cacheKey = `party_poli_v1_search_${name.replace(/\s+/g, '_')}_${country.replace(/\s+/g, '_')}`;
+    const cacheKey = `party_ai_full_${name.replace(/\s+/g, '_')}_${country.replace(/\s+/g, '_')}`;
 
     return withCache(cacheKey, async () => {
-        try {
-            const prompt = `
-            SYSTEM OVERRIDE: POLI ARCHIVE V1 (LIVE WEB INTELLIGENCE).
-            PARTY: ${name} (${country}).
-            
-            ${getLanguageInstruction()}
+        const prompt = `
+POLITICAL PARTY PROFILE: "${name}" in ${country}.
 
-            **DIRECTIVES:**
-            1. **USE GOOGLE SEARCH**: Ensure the "Current Leader" is accurate as of today. Check for recent elections or leadership spills.
-            2. **PLATFORM**: Detailed breakdown of policy stances.
-            3. **COLORS**: Exact Hex codes for party colors.
-            
-            RETURN JSON ONLY:
-            {
-                "name": "Party Name",
-                "abbr": "Abbreviation",
-                "founded": "Year",
-                "headquarters": "City",
-                "ideology": "Ideology",
-                "politicalPosition": "Left/Right/Center",
-                "currentLeader": "Name",
-                "colors": ["HexCode"],
-                "history": "Party history...",
-                "keyMembers": ["Name 1", "Name 2"],
-                "platform": "Detailed platform text..."
+${getLanguageInstruction()}
+
+RETURN JSON:
+{
+    "name": "${name}",
+    "country": "${country}",
+    "founded": "Year",
+    "ideology": "Ideology",
+    "position": "Left/Center/Right",
+    "leader": "Current leader",
+    "headquarters": "Location",
+    "membership": "Number",
+    "history": "Formation and evolution...",
+    "platform": "Key policies and positions...",
+    "achievements": ["Achievement 1", "Achievement 2"],
+    "controversies": ["Controversy 1"],
+    "electoralHistory": [{ "year": "YYYY", "result": "Result" }],
+    "colors": ["HexCode"],
+    "keyMembers": ["Name 1", "Name 2"]
+}
+        `;
+
+        const response = await generateWithRetry({
+            model: 'claude-sonnet-4-20250514',
+            contents: prompt,
+            config: { 
+                responseMimeType: "application/json",
+                maxOutputTokens: 4096
             }
-            `;
+        });
 
-            const response = await generateWithRetry({
-                model: 'claude-sonnet-4-20250514',
-                contents: prompt,
-                config: { 
-                    responseMimeType: "application/json",
-                    maxOutputTokens: 8192,
-                    tools: [{googleSearch: {}}]
-                }
-            });
-            const aiData = safeParse(response.text || '{}', {}) as PoliticalPartyDetail;
-            const merged = deepMerge(FALLBACK_PARTY, aiData);
-            return { ...merged, name };
-        } catch (e) { return { ...FALLBACK_PARTY, name }; }
+        return safeParse(response.text || '{}', { name, country }) as PoliticalPartyDetail;
     });
 };

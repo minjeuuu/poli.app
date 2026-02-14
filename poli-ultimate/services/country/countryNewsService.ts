@@ -1,5 +1,5 @@
 
-import { generateWithFallback, safeParse, getLanguageInstruction } from "../common";
+import { generateWithRetry, safeParse, getLanguageInstruction } from "../common";
 import { CountryNews } from "../../types";
 
 export const fetchCountryNews = async (countryName: string): Promise<CountryNews[]> => {
@@ -18,7 +18,7 @@ export const fetchCountryNews = async (countryName: string): Promise<CountryNews
     ${getLanguageInstruction()}
     `;
     
-    const response = await generateWithFallback({
+    const response = await generateWithRetry({
         model: 'claude-sonnet-4-20250514', // Pro model required for high-quality grounding
         contents: prompt,
         config: { 

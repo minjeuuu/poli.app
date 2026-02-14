@@ -1,78 +1,34 @@
 
-import { generateWithFallback, safeParse, withCache, getLanguageInstruction, deepMerge } from "./common";
+import { generateWithRetry, safeParse, withCache, getLanguageInstruction } from "./common";
 import { OrganizationDetail } from "../types";
-
-const FALLBACK_ORG: OrganizationDetail = {
-    name: "Organization",
-    type: "Organization",
-    headquarters: "Unknown",
-    founded: "Unknown",
-    secretaryGeneral: "Unknown",
-    mission: "Information currently unavailable.",
-    members: [],
-    history: "Historical data unavailable.",
-    keyOrgans: [],
-    majorTreaties: [],
-    satelliteOffices: []
-};
+import { generateOrgIntelligence } from "./aiPowerhouse";
 
 export const fetchOrganizationDetail = async (name: string): Promise<OrganizationDetail> => {
-    const cacheKey = `org_poli_v1_search_${name.replace(/\s+/g, '_')}`;
+    const cacheKey = `org_ai_full_${name.replace(/\s+/g, '_')}`;
 
     return withCache(cacheKey, async () => {
-        try {
-            const prompt = `
-            SYSTEM OVERRIDE: POLI ARCHIVE V1 (LIVE WEB INTELLIGENCE).
-            ORGANIZATION: ${name}.
-            
-            ${getLanguageInstruction()}
-
-            **DIRECTIVES:**
-            1. **USE GOOGLE SEARCH**: Ensure the Secretary General/Leader is CURRENT. Ensure the member list is UP TO DATE.
-            2. **ROSTER INTEGRITY**: List **ALL** members.
-               - If it is the United Nations, list all 193 member states.
-               - If it is NATO, list all member states.
-               - **DO NOT** summarize.
-            3. **DETAILS**:
-               - ISO Code: The 2-letter ISO 3166-1 alpha-2 code (e.g., US, FR, JP) to generate flags.
-
-            RETURN JSON ONLY:
-            {
-                "name": "Full Name",
-                "abbr": "Acronym",
-                "type": "IGO/NGO",
-                "headquarters": "City, Country",
-                "founded": "Date",
-                "secretaryGeneral": "Current Leader",
-                "mission": "Mission Statement",
-                "members": [
-                    { "name": "Country A", "role": "Member", "isoCode": "AA" },
-                    { "name": "Country B", "role": "Member", "isoCode": "BB" }
-                    // ... LIST EVERY SINGLE ONE
-                ],
-                "history": "Detailed history...",
-                "keyOrgans": [{ "name": "Body Name", "function": "Purpose" }],
-                "majorTreaties": ["Treaty Name"],
-                "budget": "Annual Budget",
-                "ideologicalParadigm": "Underlying Philosophy",
-                "governanceModel": "Decision Making Structure",
-                "satelliteOffices": ["City 1", "City 2"],
-                "logoUrl": "Wikimedia URL if available"
-            }
-            `;
-
-            const response = await generateWithFallback({
-                model: 'claude-sonnet-4-20250514',
-                contents: prompt,
-                config: { 
-                    responseMimeType: "application/json",
-                    maxOutputTokens: 8192,
-                    tools: [{googleSearch: {}}] 
-                }
-            });
-            const aiData = safeParse(response.text || '{}', {}) as OrganizationDetail;
-            const merged = deepMerge(FALLBACK_ORG, aiData);
-            return { ...merged, name }; 
-        } catch (e) { return { ...FALLBACK_ORG, name }; }
+        // Use AI Powerhouse for org intelligence
+        const intel = await generateOrgIntelligence(name);
+        
+        return {
+            name: intel.name || name,
+            acronym: intel.acronym || "",
+            type: intel.type || "International Organization",
+            founded: intel.founded || "Unknown",
+            headquarters: intel.headquarters || "Unknown",
+            membership: intel.membership || intel.members || [],
+            mission: intel.mission || "Mission being compiled.",
+            structure: intel.structure || "Structure being analyzed.",
+            leadership: intel.leadership || {},
+            activities: intel.activities || "Activities being documented.",
+            achievements: intel.achievements || [],
+            controversies: intel.controversies || [],
+            funding: intel.funding || "Funding sources being identified.",
+            influence: intel.influence || "Influence being assessed.",
+            history: intel.history || "History being compiled.",
+            keyOrgans: intel.keyOrgans || [],
+            majorTreaties: intel.majorTreaties || [],
+            satelliteOffices: intel.satelliteOffices || []
+        } as OrganizationDetail;
     });
 };

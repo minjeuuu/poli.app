@@ -1,27 +1,11 @@
 import { generateWithRetry, safeParse, withCache, getLanguageInstruction } from "./common";
 import { IdeologyDetail, DisciplineDetail, ConceptDetail, RegionalDetail } from "../types";
-import { FALLBACK_DISCIPLINE_DETAIL } from "../data/homeData";
-
-const FALLBACK_IDEOLOGY: IdeologyDetail = {
-    name: "Political Ideology",
-    definition: "Definition unavailable.",
-    origins: "Origins unavailable.",
-    historyNarrative: "History unavailable.",
-    timeline: [],
-    branches: [],
-    coreTenets: [],
-    keyThinkers: [],
-    globalImpact: "Impact unavailable.",
-    criticisms: "Criticism unavailable.",
-    foundationalWorks: []
-};
 
 export const fetchIdeologyDetail = async (name: string): Promise<IdeologyDetail> => {
-    const cacheKey = `ideology_poli_v1_prompt_${name.replace(/\s+/g, '_')}`;
+    const cacheKey = `ideology_ai_full_${name.replace(/\s+/g, '_')}`;
 
     return withCache(cacheKey, async () => {
-        try {
-            const prompt = `
+        const prompt = `
 SYSTEM OVERRIDE: POLI ARCHIVE V1.
 TOPIC: ${name} (Ideology).
 
@@ -41,31 +25,26 @@ RETURN JSON ONLY:
     "criticisms": "Major criticisms...",
     "foundationalWorks": [{ "title": "Title", "author": "Author", "year": "Year" }]
 }
-            `;
+        `;
 
-            const response = await generateWithRetry({
-                model: 'claude-sonnet-4-20250514',
-                contents: prompt,
-                config: { 
-                    responseMimeType: "application/json",
-                    maxOutputTokens: 8192
-                }
-            });
+        const response = await generateWithRetry({
+            model: 'claude-sonnet-4-20250514',
+            contents: prompt,
+            config: { 
+                responseMimeType: "application/json",
+                maxOutputTokens: 8192
+            }
+        });
 
-            const parsed = safeParse(response.text || '{}', FALLBACK_IDEOLOGY) as IdeologyDetail;
-            return { ...FALLBACK_IDEOLOGY, ...parsed, name };
-        } catch (e) {
-            return { ...FALLBACK_IDEOLOGY, name };
-        }
+        return safeParse(response.text || '{}', { name }) as IdeologyDetail;
     });
 };
 
 export const fetchDisciplineDetail = async (name: string): Promise<DisciplineDetail> => {
-    const cacheKey = `discipline_poli_v1_prompt_${name.replace(/\s+/g, '_')}`;
+    const cacheKey = `discipline_ai_full_${name.replace(/\s+/g, '_')}`;
 
     return withCache(cacheKey, async () => {
-        try {
-            const prompt = `
+        const prompt = `
 SYSTEM OVERRIDE: POLI ARCHIVE V1.
 DISCIPLINE: ${name}.
 
@@ -84,75 +63,63 @@ RETURN JSON ONLY matching DisciplineDetail interface:
     "foundationalWorks": [],
     "regionalFocus": []
 }
-            `;
+        `;
 
-            const response = await generateWithRetry({
-                model: 'claude-sonnet-4-20250514',
-                contents: prompt,
-                config: { 
-                    responseMimeType: "application/json",
-                    maxOutputTokens: 8192
-                }
-            });
+        const response = await generateWithRetry({
+            model: 'claude-sonnet-4-20250514',
+            contents: prompt,
+            config: { 
+                responseMimeType: "application/json",
+                maxOutputTokens: 8192
+            }
+        });
 
-            const parsed = safeParse(response.text || '{}', FALLBACK_DISCIPLINE_DETAIL) as DisciplineDetail;
-            return { ...FALLBACK_DISCIPLINE_DETAIL, ...parsed, name };
-        } catch (e) {
-            return { ...FALLBACK_DISCIPLINE_DETAIL, name };
-        }
+        return safeParse(response.text || '{}', { name }) as DisciplineDetail;
     });
 };
 
 export const fetchConceptDetail = async (term: string, context: string): Promise<ConceptDetail> => {
-    const cacheKey = `concept_poli_v1_prompt_${term.replace(/\s+/g, '_')}_${context.replace(/\s+/g, '_')}`;
+    const cacheKey = `concept_ai_full_${term.replace(/\s+/g, '_')}_${context.replace(/\s+/g, '_')}`;
 
     return withCache(cacheKey, async () => {
-        try {
-            const prompt = `
+        const prompt = `
 DEFINE CONCEPT: "${term}" within context of "${context}".
 ${getLanguageInstruction()}
 RETURN JSON: { "term": "${term}", "definition": "...", "context": "...", "examples": [], "history": "..." }
-            `;
+        `;
 
-            const response = await generateWithRetry({
-                model: 'claude-sonnet-4-20250514',
-                contents: prompt,
-                config: { 
-                    responseMimeType: "application/json",
-                    maxOutputTokens: 2048
-                }
-            });
+        const response = await generateWithRetry({
+            model: 'claude-sonnet-4-20250514',
+            contents: prompt,
+            config: { 
+                responseMimeType: "application/json",
+                maxOutputTokens: 2048
+            }
+        });
 
-            return safeParse(response.text || '{}', { term, definition: "Unavailable", context, examples: [], history: "" }) as ConceptDetail;
-        } catch (e) {
-            return { term, definition: "Definition unavailable.", context, examples: [], history: "" };
-        }
+        return safeParse(response.text || '{}', { term, context }) as ConceptDetail;
     });
 };
 
 export const fetchRegionalDetail = async (region: string, discipline: string): Promise<RegionalDetail> => {
-    const cacheKey = `region_poli_v1_prompt_${region.replace(/\s+/g, '_')}_${discipline.replace(/\s+/g, '_')}`;
+    const cacheKey = `region_ai_full_${region.replace(/\s+/g, '_')}_${discipline.replace(/\s+/g, '_')}`;
 
     return withCache(cacheKey, async () => {
-        try {
-            const prompt = `
+        const prompt = `
 REGIONAL ANALYSIS: ${region} (Lens: ${discipline}).
 ${getLanguageInstruction()}
 RETURN JSON: { "region": "${region}", "summary": "...", "keyCountries": [], "politicalThemes": [], "challenges": [] }
-            `;
+        `;
 
-            const response = await generateWithRetry({
-                model: 'claude-sonnet-4-20250514',
-                contents: prompt,
-                config: { 
-                    responseMimeType: "application/json",
-                    maxOutputTokens: 4096
-                }
-            });
+        const response = await generateWithRetry({
+            model: 'claude-sonnet-4-20250514',
+            contents: prompt,
+            config: { 
+                responseMimeType: "application/json",
+                maxOutputTokens: 4096
+            }
+        });
 
-            return safeParse(response.text || '{}', {}) as RegionalDetail;
-        } catch (e) {
-            return {} as RegionalDetail;
-        }
+        return safeParse(response.text || '{}', { region }) as RegionalDetail;
     });
 };

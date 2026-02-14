@@ -1,5 +1,5 @@
 
-import { generateWithFallback, safeParse, getLanguageInstruction } from "../common";
+import { generateWithRetry, safeParse, getLanguageInstruction } from "../common";
 import { DemographicsProfile } from "../../types";
 const model = "claude-sonnet-4-20250514";
 
@@ -18,7 +18,7 @@ export const fetchDemographics = async (countryName: string): Promise<Demographi
     ${getLanguageInstruction()}
     `;
 
-    const response = await generateWithFallback({
+    const response = await generateWithRetry({
         model: 'claude-sonnet-4-20250514',
         contents: prompt,
         config: { 

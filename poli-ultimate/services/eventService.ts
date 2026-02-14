@@ -1,73 +1,30 @@
 
-import { generateWithFallback, safeParse, withCache, getLanguageInstruction, deepMerge } from "./common";
+import { generateWithRetry, safeParse, withCache, getLanguageInstruction } from "./common";
 import { EventDetail } from "../types";
-
-const FALLBACK_EVENT: EventDetail = {
-    title: "Historical Event",
-    date: "Unknown",
-    location: "Unknown",
-    context: "Context unavailable.",
-    keyActors: [],
-    outcome: "Outcome unavailable.",
-    significance: "Significance unavailable.",
-    imageUrl: "",
-    casualties: "Unknown",
-    forcesInvolved: [],
-    weather: "Unknown",
-    timeline: [],
-    documents: []
-};
+import { generateEventAnalysis } from "./aiPowerhouse";
 
 export const fetchEventDetail = async (name: string): Promise<EventDetail> => {
-    const cacheKey = `event_poli_v1_search_${name.replace(/\s+/g, '_')}`;
+    const cacheKey = `event_ai_full_${name.replace(/\s+/g, '_')}`;
 
     return withCache(cacheKey, async () => {
-        try {
-            const prompt = `
-            SYSTEM OVERRIDE: POLI ARCHIVE V1 (LIVE WEB INTELLIGENCE).
-            EVENT: ${name}.
-            
-            ${getLanguageInstruction()}
-
-            **DIRECTIVES:**
-            1. **USE GOOGLE SEARCH**: Validate dates, casualty numbers, and specific details using real-time search.
-            2. **IMAGE**: Find a valid Wikimedia Commons or public domain URL for the event.
-            3. **TIMELINE**: Minute-by-minute or day-by-day breakdown of the event.
-            4. **FORCES**: Exact troop numbers, equipment lists, and commanders for all sides.
-            5. **CASUALTIES**: Precise breakdown of losses.
-            6. **AFTERMATH**: Immediate and long-term geopolitical consequences.
-
-            RETURN JSON ONLY:
-            {
-                "title": "string",
-                "date": "string",
-                "location": "string",
-                "imageUrl": "string (Wikimedia URL)",
-                "context": "string (500+ words)",
-                "keyActors": ["string"],
-                "outcome": "string",
-                "significance": "string",
-                "casualties": "string",
-                "forcesInvolved": ["string"],
-                "weather": "string",
-                "timeline": [{ "time": "string", "description": "string" }],
-                "documents": ["string (Treaties/Orders)"]
-            }
-            `;
-
-            const response = await generateWithFallback({
-                model: 'claude-sonnet-4-20250514',
-                contents: prompt,
-                config: { 
-                    responseMimeType: "application/json",
-                    maxOutputTokens: 8192,
-                    tools: [{googleSearch: {}}]
-                }
-            });
-            const aiData = safeParse(response.text || '{}', {}) as any;
-            const merged = deepMerge(FALLBACK_EVENT, aiData);
-
-            return merged as EventDetail;
-        } catch (e) { return { ...FALLBACK_EVENT, title: name }; }
+        // Use AI Powerhouse for comprehensive event analysis
+        const analysis = await generateEventAnalysis(name);
+        
+        // Transform to EventDetail format
+        return {
+            title: analysis.name || name,
+            date: analysis.date || "Unknown",
+            location: analysis.location || "Unknown",
+            context: analysis.context || analysis.summary || "No context available.",
+            keyActors: analysis.keyFigures || [],
+            outcome: analysis.immediateImpact || "Outcome being analyzed.",
+            significance: analysis.longTermImpact || analysis.legacy || "Historical significance being evaluated.",
+            imageUrl: analysis.imageUrl || "",
+            casualties: analysis.casualties || "Unknown",
+            forcesInvolved: analysis.forcesInvolved || [],
+            weather: analysis.weather || "Unknown",
+            timeline: analysis.timeline || [],
+            documents: analysis.documents || analysis.sources || []
+        } as EventDetail;
     });
 };

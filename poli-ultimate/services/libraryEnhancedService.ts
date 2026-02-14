@@ -1,4 +1,4 @@
-import { generateWithFallback, safeParse } from "./common";
+import { generateWithRetry, safeParse } from "./common";
 
 // DOCUMENT MANAGEMENT FEATURES
 
@@ -30,7 +30,7 @@ export const fetchLibraryCollections = async () => {
     For each collection: {name, description, itemCount, topics, difficulty, estimatedHours, curator}
     Return comprehensive JSON array.`;
 
-    const response = await generateWithFallback({
+    const response = await generateWithRetry({
         model: 'claude-sonnet-4-20250514',
         contents: prompt,
         config: { responseMimeType: "application/json", maxOutputTokens: 5120 }
@@ -53,7 +53,7 @@ export const searchLibrary = async (query: string, filters: any) => {
     
     Make results comprehensive and diverse.`;
 
-    const response = await generateWithFallback({
+    const response = await generateWithRetry({
         model: 'claude-sonnet-4-20250514',
         contents: prompt,
         config: { responseMimeType: "application/json", maxOutputTokens: 6144 }
@@ -89,7 +89,7 @@ export const fetchBookAnalysis = async (title: string, author: string) => {
     
     Return exhaustive JSON analysis.`;
 
-    const response = await generateWithFallback({
+    const response = await generateWithRetry({
         model: 'claude-sonnet-4-20250514',
         contents: prompt,
         config: { responseMimeType: "application/json", maxOutputTokens: 8192 }
@@ -112,7 +112,7 @@ export const generateReadingList = async (topic: string, level: string) => {
     
     Return detailed JSON.`;
 
-    const response = await generateWithFallback({
+    const response = await generateWithRetry({
         model: 'claude-sonnet-4-20250514',
         contents: prompt,
         config: { responseMimeType: "application/json", maxOutputTokens: 8192 }
@@ -148,7 +148,7 @@ export const fetchAuthorProfile = async (authorName: string) => {
     
     Return comprehensive JSON.`;
 
-    const response = await generateWithFallback({
+    const response = await generateWithRetry({
         model: 'claude-sonnet-4-20250514',
         contents: prompt,
         config: { responseMimeType: "application/json", maxOutputTokens: 7168 }
@@ -184,7 +184,7 @@ export const fetchDocumentAnalysis = async (documentName: string) => {
     
     Return comprehensive JSON.`;
 
-    const response = await generateWithFallback({
+    const response = await generateWithRetry({
         model: 'claude-sonnet-4-20250514',
         contents: prompt,
         config: { responseMimeType: "application/json", maxOutputTokens: 8192 }
@@ -220,7 +220,7 @@ export const createStudyGuide = async (topic: string) => {
     
     Return detailed JSON.`;
 
-    const response = await generateWithFallback({
+    const response = await generateWithRetry({
         model: 'claude-sonnet-4-20250514',
         contents: prompt,
         config: { responseMimeType: "application/json", maxOutputTokens: 8192 }
@@ -252,7 +252,7 @@ export const generateBibliography = async (topic: string, citationStyle: string)
     
     Return formatted JSON.`;
 
-    const response = await generateWithFallback({
+    const response = await generateWithRetry({
         model: 'claude-sonnet-4-20250514',
         contents: prompt,
         config: { responseMimeType: "application/json", maxOutputTokens: 8192 }
@@ -275,7 +275,7 @@ export const fetchResearchTopics = async (field: string) => {
     
     Return comprehensive JSON.`;
 
-    const response = await generateWithFallback({
+    const response = await generateWithRetry({
         model: 'claude-sonnet-4-20250514',
         contents: prompt,
         config: { responseMimeType: "application/json", maxOutputTokens: 8192 }
@@ -302,7 +302,7 @@ export const createAnnotatedBibliography = async (topic: string, sources: number
     
     Return detailed JSON array.`;
 
-    const response = await generateWithFallback({
+    const response = await generateWithRetry({
         model: 'claude-sonnet-4-20250514',
         contents: prompt,
         config: { responseMimeType: "application/json", maxOutputTokens: 8192 }
@@ -338,7 +338,7 @@ export const fetchLiteratureReview = async (topic: string) => {
     
     Return comprehensive JSON.`;
 
-    const response = await generateWithFallback({
+    const response = await generateWithRetry({
         model: 'claude-sonnet-4-20250514',
         contents: prompt,
         config: { responseMimeType: "application/json", maxOutputTokens: 8192 }
@@ -374,7 +374,7 @@ export const generateCourseOutline = async (subject: string, level: string) => {
     
     Return detailed JSON.`;
 
-    const response = await generateWithFallback({
+    const response = await generateWithRetry({
         model: 'claude-sonnet-4-20250514',
         contents: prompt,
         config: { responseMimeType: "application/json", maxOutputTokens: 8192 }
@@ -402,7 +402,7 @@ export const fetchArchivalSources = async (topic: string, era: string) => {
     
     Return comprehensive JSON.`;
 
-    const response = await generateWithFallback({
+    const response = await generateWithRetry({
         model: 'claude-sonnet-4-20250514',
         contents: prompt,
         config: { responseMimeType: "application/json", maxOutputTokens: 7168 }
@@ -427,7 +427,7 @@ export const generateTimelineOfIdeas = async (concept: string) => {
     
     Return chronological JSON.`;
 
-    const response = await generateWithFallback({
+    const response = await generateWithRetry({
         model: 'claude-sonnet-4-20250514',
         contents: prompt,
         config: { responseMimeType: "application/json", maxOutputTokens: 8192 }
@@ -463,7 +463,7 @@ export const createComparativeAnalysis = async (items: string[]) => {
     
     Return detailed comparison matrix in JSON.`;
 
-    const response = await generateWithFallback({
+    const response = await generateWithRetry({
         model: 'claude-sonnet-4-20250514',
         contents: prompt,
         config: { responseMimeType: "application/json", maxOutputTokens: 8192 }
@@ -487,7 +487,7 @@ export const fetchPrimarySourceDatabase = async (topic: string) => {
     
     Return comprehensive JSON.`;
 
-    const response = await generateWithFallback({
+    const response = await generateWithRetry({
         model: 'claude-sonnet-4-20250514',
         contents: prompt,
         config: { responseMimeType: "application/json", maxOutputTokens: 8192 }
@@ -510,7 +510,7 @@ export const generateGlossary = async (field: string) => {
     
     Return alphabetized JSON.`;
 
-    const response = await generateWithFallback({
+    const response = await generateWithRetry({
         model: 'claude-sonnet-4-20250514',
         contents: prompt,
         config: { responseMimeType: "application/json", maxOutputTokens: 8192 }
@@ -536,7 +536,7 @@ export const createCitationNetwork = async (work: string) => {
     
     Return network graph JSON.`;
 
-    const response = await generateWithFallback({
+    const response = await generateWithRetry({
         model: 'claude-sonnet-4-20250514',
         contents: prompt,
         config: { responseMimeType: "application/json", maxOutputTokens: 7168 }
@@ -567,7 +567,7 @@ export const fetchTranslationGuide = async (work: string) => {
     
     Return comprehensive JSON.`;
 
-    const response = await generateWithFallback({
+    const response = await generateWithRetry({
         model: 'claude-sonnet-4-20250514',
         contents: prompt,
         config: { responseMimeType: "application/json", maxOutputTokens: 6144 }

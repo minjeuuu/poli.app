@@ -1,4 +1,4 @@
-import { generateWithFallback, safeParse } from "../common";
+import { generateWithRetry, safeParse } from "../common";
 
 export interface RealSocialPost {
     id: string;
@@ -55,7 +55,7 @@ export const createRealPost = async (content: string, type: 'text' | 'poll' | 'd
     
     Make it feel authentic like a real political discussion post.`;
 
-    const response = await generateWithFallback({
+    const response = await generateWithRetry({
         model: 'claude-sonnet-4-20250514',
         contents: prompt,
         config: { responseMimeType: "application/json", maxOutputTokens: 1024 }
@@ -257,7 +257,7 @@ export const addComment = async (post: RealSocialPost, commentText: string): Pro
     Return JSON: {username, handle, avatar, content}
     Keep response 1-2 sentences.`;
 
-    const response = await generateWithFallback({
+    const response = await generateWithRetry({
         model: 'claude-sonnet-4-20250514',
         contents: prompt,
         config: { responseMimeType: "application/json", maxOutputTokens: 256 }
@@ -310,7 +310,7 @@ export const createDebatePost = async (topic: string, stance: 'for' | 'against')
     
     Return JSON with realistic debate structure.`;
 
-    const response = await generateWithFallback({
+    const response = await generateWithRetry({
         model: 'claude-sonnet-4-20250514',
         contents: prompt,
         config: { responseMimeType: "application/json", maxOutputTokens: 512 }

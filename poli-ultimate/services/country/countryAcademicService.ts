@@ -1,5 +1,5 @@
 
-import { generateWithFallback, safeParse, getLanguageInstruction } from "../common";
+import { generateWithRetry, safeParse, getLanguageInstruction } from "../common";
 import { AcademicProfile } from "../../types";
 
 export const fetchAcademicProfile = async (countryName: string): Promise<AcademicProfile> => {
@@ -19,7 +19,7 @@ export const fetchAcademicProfile = async (countryName: string): Promise<Academi
     ${getLanguageInstruction()}
     `;
 
-    const response = await generateWithFallback({
+    const response = await generateWithRetry({
         model: 'claude-sonnet-4-20250514',
         contents: prompt,
         config: { responseMimeType: "application/json", maxOutputTokens: 8192 }

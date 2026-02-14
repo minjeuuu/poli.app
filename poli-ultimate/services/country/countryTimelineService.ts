@@ -1,5 +1,5 @@
 
-import { generateWithFallback, safeParse, getLanguageInstruction } from "../common";
+import { generateWithRetry, safeParse, getLanguageInstruction } from "../common";
 import { DetailedTimelineEvent } from "../../types";
 
 export const fetchCountryTimeline = async (countryName: string): Promise<DetailedTimelineEvent[]> => {
@@ -13,7 +13,7 @@ export const fetchCountryTimeline = async (countryName: string): Promise<Detaile
     ${getLanguageInstruction()}
     `;
 
-    const response = await generateWithFallback({
+    const response = await generateWithRetry({
         model: 'claude-sonnet-4-20250514',
         contents: prompt,
         config: { responseMimeType: "application/json", maxOutputTokens: 8192 }

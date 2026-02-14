@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
-import { Home, Compass, Globe, Languages, Scale, BookOpen, Users, GraduationCap, DollarSign, User, Gamepad2, MessageSquare, Library, Mail, Calendar, Brain } from 'lucide-react';
+import { Home, Compass, Globe, Languages, Scale, BookOpen, Users, GraduationCap, DollarSign, User, Gamepad2, MessageSquare, Library, Mail, Calendar, Brain, Newspaper, TrendingUp, Swords, Search, Menu, X, ChevronRight, AlertTriangle, Beaker, Vote, Shield } from 'lucide-react';
 import { MainTab, SpecialTheme } from '../types';
 import GlobalHeader from './GlobalHeader';
 
@@ -14,6 +14,7 @@ interface LayoutProps {
 
 const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange, onNavigate, themeMode = 'Default' }) => {
   const [isDark, setIsDark] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // --- CONTEXTUAL THEME ENGINE ---
   const themeClasses = useMemo(() => {
@@ -80,23 +81,58 @@ const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange, onNav
     setIsDark(!isDark);
   };
 
-  const navItems: { id: MainTab; label: string; icon: React.ElementType }[] = [
+  // Categorized navigation for better organization
+  const navCategories = {
+    main: [
+      { id: 'home', label: 'Home', icon: Home },
+      { id: 'news', label: 'News Hub', icon: Newspaper },
+      { id: 'explore', label: 'Explore', icon: Compass },
+      { id: 'crisis', label: 'Crisis Tracker', icon: AlertTriangle },
+    ],
+    intelligence: [
+      { id: 'intel', label: 'Intel Brief', icon: Shield },
+      { id: 'countries', label: 'Countries', icon: Globe },
+      { id: 'persons', label: 'Leaders', icon: Users },
+      { id: 'theory', label: 'Theory', icon: BookOpen },
+      { id: 'research', label: 'Research', icon: Search },
+    ],
+    tools: [
+      { id: 'forecast', label: 'Forecast', icon: TrendingUp },
+      { id: 'debate', label: 'Debate', icon: Swords },
+      { id: 'policy', label: 'Policy Lab', icon: Beaker },
+      { id: 'election', label: 'Elections', icon: Vote },
+      { id: 'comparative', label: 'Compare', icon: Scale },
+      { id: 'translate', label: 'Translate', icon: Languages },
+    ],
+    learning: [
+      { id: 'learn', label: 'Learn', icon: GraduationCap },
+      { id: 'read', label: 'Library', icon: Library },
+      { id: 'almanac', label: 'Almanac', icon: Calendar },
+      { id: 'games', label: 'Games', icon: Brain },
+    ],
+    interactive: [
+      { id: 'sim', label: 'Simulator', icon: Gamepad2 },
+      { id: 'social', label: 'Social', icon: MessageSquare },
+      { id: 'messages', label: 'Messages', icon: Mail },
+    ],
+    account: [
+      { id: 'rates', label: 'Markets', icon: DollarSign },
+      { id: 'profile', label: 'Profile', icon: User },
+    ]
+  };
+
+  // Quick access items (shown in bottom nav on mobile)
+  const quickAccessItems: { id: MainTab; label: string; icon: React.ElementType }[] = [
     { id: 'home', label: 'Home', icon: Home },
+    { id: 'news', label: 'News', icon: Newspaper },
     { id: 'explore', label: 'Explore', icon: Compass },
-    { id: 'countries', label: 'Nations', icon: Globe },
-    { id: 'persons', label: 'People', icon: Users },
-    { id: 'theory', label: 'Theory', icon: BookOpen },
-    { id: 'read', label: 'Read', icon: Library },
-    { id: 'almanac', label: 'Almanac', icon: Calendar },
-    { id: 'comparative', label: 'Compare', icon: Scale },
-    { id: 'sim', label: 'Sim', icon: Gamepad2 },
-    { id: 'games', label: 'Games', icon: Brain }, 
-    { id: 'learn', label: 'Learn', icon: GraduationCap },
-    { id: 'rates', label: 'Mkts', icon: DollarSign },
-    { id: 'social', label: 'Feed', icon: MessageSquare },
-    { id: 'messages', label: 'Chat', icon: Mail },
-    { id: 'profile', label: 'Profile', icon: User },
+    { id: 'research', label: 'Research', icon: Search },
   ];
+
+  const handleNavClick = (tabId: MainTab) => {
+    onTabChange(tabId);
+    setMobileMenuOpen(false);
+  };
 
   return (
     <div className={`flex flex-col h-screen transition-colors duration-500 overflow-hidden ${themeClasses}`}>
@@ -114,72 +150,252 @@ const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange, onNav
         
       </main>
 
-      {/* REDESIGNED BOTTOM NAVIGATION - CLEAN PROFESSIONAL */}
-      <nav className={`flex-none border-t bg-white dark:bg-stone-900 pb-safe z-50 transition-all duration-300 shadow-[0_-2px_10px_rgba(0,0,0,0.08)]
-          ${['War', 'Steampunk', 'Volcanic', 'Coffee'].includes(themeMode) ? 'border-red-600' : 
-            ['Tech', 'Matrix', 'Cyberpunk', 'Neon'].includes(themeMode) ? 'border-cyan-600' : 
-            'border-stone-200 dark:border-stone-800'}`}>
-        
-        <div className="flex items-stretch h-20 px-2">
-          {navItems.map((item) => {
-            const isActive = activeTab === item.id;
-            
-            // Theme-specific colors
-            let activeColor = 'indigo-600';
-            let activeBg = 'indigo-50';
-            let activeBorder = 'indigo-600';
-            
-            if (themeMode === 'War') { 
-              activeColor = 'red-600'; 
-              activeBg = 'red-50';
-              activeBorder = 'red-600';
-            }
-            if (themeMode === 'Tech' || themeMode === 'Cyberpunk') { 
-              activeColor = 'cyan-600'; 
-              activeBg = 'cyan-50';
-              activeBorder = 'cyan-600';
-            }
-            if (themeMode === 'Matrix') { 
-              activeColor = 'green-600'; 
-              activeBg = 'green-50';
-              activeBorder = 'green-600';
-            }
+      {/* MOBILE HAMBURGER MENU OVERLAY */}
+      {mobileMenuOpen && (
+        <div className="fixed inset-0 z-[100] lg:hidden">
+          {/* Backdrop */}
+          <div 
+            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+            onClick={() => setMobileMenuOpen(false)}
+          ></div>
+          
+          {/* Menu Panel */}
+          <div className="absolute top-0 left-0 bottom-0 w-[85%] max-w-sm bg-white dark:bg-gray-900 shadow-2xl overflow-y-auto">
+            {/* Menu Header */}
+            <div className="sticky top-0 bg-gradient-to-r from-indigo-600 to-purple-600 text-white p-4 flex items-center justify-between z-10">
+              <div>
+                <h2 className="text-xl font-bold">POLI Navigation</h2>
+                <p className="text-xs text-indigo-100">AI-Powered Platform</p>
+              </div>
+              <button
+                onClick={() => setMobileMenuOpen(false)}
+                className="p-2 hover:bg-white/20 rounded-lg transition-colors"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
 
+            {/* Menu Content */}
+            <div className="p-4 space-y-6">
+              {/* Main Section */}
+              <div>
+                <h3 className="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-3 px-2">
+                  Main
+                </h3>
+                <div className="space-y-1">
+                  {navCategories.main.map((item) => (
+                    <button
+                      key={item.id}
+                      onClick={() => handleNavClick(item.id)}
+                      className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${
+                        activeTab === item.id
+                          ? 'bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 font-semibold'
+                          : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
+                      }`}
+                    >
+                      <item.icon className="w-5 h-5" />
+                      <span className="flex-1 text-left">{item.label}</span>
+                      {activeTab === item.id && <ChevronRight className="w-4 h-4" />}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Intelligence Section */}
+              <div>
+                <h3 className="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-3 px-2">
+                  Intelligence
+                </h3>
+                <div className="space-y-1">
+                  {navCategories.intelligence.map((item) => (
+                    <button
+                      key={item.id}
+                      onClick={() => handleNavClick(item.id)}
+                      className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${
+                        activeTab === item.id
+                          ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 font-semibold'
+                          : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
+                      }`}
+                    >
+                      <item.icon className="w-5 h-5" />
+                      <span className="flex-1 text-left">{item.label}</span>
+                      {activeTab === item.id && <ChevronRight className="w-4 h-4" />}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Tools Section */}
+              <div>
+                <h3 className="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-3 px-2">
+                  AI Tools
+                </h3>
+                <div className="space-y-1">
+                  {navCategories.tools.map((item) => (
+                    <button
+                      key={item.id}
+                      onClick={() => handleNavClick(item.id)}
+                      className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${
+                        activeTab === item.id
+                          ? 'bg-purple-50 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 font-semibold'
+                          : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
+                      }`}
+                    >
+                      <item.icon className="w-5 h-5" />
+                      <span className="flex-1 text-left">{item.label}</span>
+                      {activeTab === item.id && <ChevronRight className="w-4 h-4" />}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Learning Section */}
+              <div>
+                <h3 className="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-3 px-2">
+                  Learning
+                </h3>
+                <div className="space-y-1">
+                  {navCategories.learning.map((item) => (
+                    <button
+                      key={item.id}
+                      onClick={() => handleNavClick(item.id)}
+                      className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${
+                        activeTab === item.id
+                          ? 'bg-green-50 dark:bg-green-900/30 text-green-600 dark:text-green-400 font-semibold'
+                          : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
+                      }`}
+                    >
+                      <item.icon className="w-5 h-5" />
+                      <span className="flex-1 text-left">{item.label}</span>
+                      {activeTab === item.id && <ChevronRight className="w-4 h-4" />}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Interactive Section */}
+              <div>
+                <h3 className="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-3 px-2">
+                  Interactive
+                </h3>
+                <div className="space-y-1">
+                  {navCategories.interactive.map((item) => (
+                    <button
+                      key={item.id}
+                      onClick={() => handleNavClick(item.id)}
+                      className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${
+                        activeTab === item.id
+                          ? 'bg-orange-50 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 font-semibold'
+                          : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
+                      }`}
+                    >
+                      <item.icon className="w-5 h-5" />
+                      <span className="flex-1 text-left">{item.label}</span>
+                      {activeTab === item.id && <ChevronRight className="w-4 h-4" />}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Account Section */}
+              <div>
+                <h3 className="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-3 px-2">
+                  Account
+                </h3>
+                <div className="space-y-1">
+                  {navCategories.account.map((item) => (
+                    <button
+                      key={item.id}
+                      onClick={() => handleNavClick(item.id)}
+                      className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${
+                        activeTab === item.id
+                          ? 'bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100 font-semibold'
+                          : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
+                      }`}
+                    >
+                      <item.icon className="w-5 h-5" />
+                      <span className="flex-1 text-left">{item.label}</span>
+                      {activeTab === item.id && <ChevronRight className="w-4 h-4" />}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* MOBILE BOTTOM NAVIGATION - PHONE FRIENDLY */}
+      <nav className="lg:hidden flex-none border-t bg-white dark:bg-gray-900 pb-safe z-50 shadow-lg border-gray-200 dark:border-gray-800">
+        <div className="flex items-stretch h-16 safe-area-inset-bottom">
+          {/* Menu Button */}
+          <button
+            onClick={() => setMobileMenuOpen(true)}
+            className="flex-1 flex flex-col items-center justify-center gap-1 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+          >
+            <Menu className="w-6 h-6 text-gray-700 dark:text-gray-300" />
+            <span className="text-[10px] font-medium text-gray-600 dark:text-gray-400">Menu</span>
+          </button>
+
+          {/* Quick Access Items */}
+          {quickAccessItems.map((item) => {
+            const isActive = activeTab === item.id;
             return (
               <button
                 key={item.id}
-                onClick={() => onTabChange(item.id)}
-                className={`relative flex flex-col items-center justify-center flex-1 max-w-[90px] transition-all duration-200 group
-                  ${isActive ? 'scale-105' : 'scale-100 hover:scale-102'}
-                `}
+                onClick={() => handleNavClick(item.id)}
+                className={`flex-1 flex flex-col items-center justify-center gap-1 transition-all ${
+                  isActive 
+                    ? 'bg-indigo-50 dark:bg-indigo-900/30' 
+                    : 'hover:bg-gray-50 dark:hover:bg-gray-800'
+                }`}
               >
-                {/* Active Indicator Line */}
-                {isActive && (
-                  <div className={`absolute top-0 left-1/2 -translate-x-1/2 w-12 h-1 bg-${activeColor} rounded-b-full`}></div>
-                )}
-                
-                {/* Icon Container */}
-                <div className={`flex items-center justify-center w-12 h-12 rounded-xl mb-1 transition-all duration-200
-                  ${isActive 
-                    ? `bg-${activeBg} dark:bg-${activeColor}/20 border-2 border-${activeBorder}` 
-                    : 'bg-transparent border-2 border-transparent group-hover:bg-stone-100 dark:group-hover:bg-stone-800'
-                  }`}>
-                  <item.icon className={`w-6 h-6 transition-all duration-200 
-                    ${isActive 
-                      ? `text-${activeColor} stroke-[2.5px]` 
-                      : 'text-stone-500 dark:text-stone-400 stroke-[2px] group-hover:text-stone-700 dark:group-hover:text-stone-300'
-                    }`} 
-                  />
-                </div>
-                
-                {/* Label */}
-                <span className={`text-[11px] font-bold uppercase tracking-wide transition-all duration-200 truncate max-w-full
-                  ${isActive 
-                    ? `text-${activeColor}` 
-                    : 'text-stone-500 dark:text-stone-400 group-hover:text-stone-700 dark:group-hover:text-stone-300'
-                  }`}>
+                <item.icon className={`w-6 h-6 ${
+                  isActive 
+                    ? 'text-indigo-600 dark:text-indigo-400' 
+                    : 'text-gray-700 dark:text-gray-300'
+                }`} />
+                <span className={`text-[10px] font-medium ${
+                  isActive 
+                    ? 'text-indigo-600 dark:text-indigo-400' 
+                    : 'text-gray-600 dark:text-gray-400'
+                }`}>
                   {item.label}
                 </span>
+              </button>
+            );
+          })}
+        </div>
+      </nav>
+
+      {/* DESKTOP NAVIGATION - HIDDEN ON MOBILE */}
+      <nav className="hidden lg:flex flex-none border-t bg-white dark:bg-stone-900 pb-safe z-50 transition-all duration-300 shadow-[0_-2px_10px_rgba(0,0,0,0.08)] border-stone-200 dark:border-stone-800">
+        <div className="flex items-stretch h-16 px-4 gap-1 overflow-x-auto">
+          {Object.values(navCategories).flat().map((item) => {
+            const isActive = activeTab === item.id;
+            return (
+              <button
+                key={item.id}
+                onClick={() => handleNavClick(item.id)}
+                className={`relative flex flex-col items-center justify-center px-4 min-w-[80px] transition-all duration-200 group rounded-lg ${
+                  isActive ? 'bg-indigo-50 dark:bg-indigo-900/30' : 'hover:bg-gray-50 dark:hover:bg-gray-800'
+                }`}
+              >
+                <item.icon className={`w-5 h-5 mb-1 transition-all duration-200 ${
+                  isActive 
+                    ? 'text-indigo-600 dark:text-indigo-400' 
+                    : 'text-gray-600 dark:text-gray-400 group-hover:text-gray-800 dark:group-hover:text-gray-200'
+                }`} />
+                <span className={`text-[10px] font-medium transition-all duration-200 ${
+                  isActive 
+                    ? 'text-indigo-600 dark:text-indigo-400' 
+                    : 'text-gray-600 dark:text-gray-400 group-hover:text-gray-800 dark:group-hover:text-gray-200'
+                }`}>
+                  {item.label}
+                </span>
+                {isActive && (
+                  <div className="absolute top-0 left-1/2 -translate-x-1/2 w-12 h-1 bg-indigo-600 dark:bg-indigo-400 rounded-b-full"></div>
+                )}
               </button>
             );
           })}

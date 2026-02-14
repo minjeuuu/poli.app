@@ -1,214 +1,132 @@
+
 import React, { useState } from 'react';
-import { User, Lock, Mail, ArrowRight, Sparkles, Globe } from 'lucide-react';
+import Logo from './Logo';
+import { ArrowRight, User, Lock, Mail, Globe, ShieldCheck } from 'lucide-react';
+import { playSFX } from '../services/soundService';
 
 interface AuthScreenProps {
-  onLogin: (username: string, password: string) => void;
+  onLogin: (user: any) => void;
+  onGuest: () => void;
 }
 
-export const AuthScreen: React.FC<AuthScreenProps> = ({ onLogin }) => {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [isLogin, setIsLogin] = useState(true);
-  const [email, setEmail] = useState('');
-  const [error, setError] = useState('');
+const AuthScreen: React.FC<AuthScreenProps> = ({ onLogin, onGuest }) => {
+  const [mode, setMode] = useState<'login' | 'signup'>('login');
+  const [formData, setFormData] = useState({ email: '', password: '', username: '' });
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
-
-    if (!username.trim() || !password.trim()) {
-      setError('Please fill in all fields');
-      return;
-    }
-
-    if (!isLogin && !email.trim()) {
-      setError('Please enter your email');
-      return;
-    }
-
-    // Local authentication - store credentials in localStorage
-    if (isLogin) {
-      // Check if user exists
-      const storedPassword = localStorage.getItem(`user_${username}`);
-      if (!storedPassword) {
-        setError('User not found. Please sign up first.');
-        return;
-      }
-      if (storedPassword !== password) {
-        setError('Incorrect password');
-        return;
-      }
-    } else {
-      // Sign up - store new user
-      const existingUser = localStorage.getItem(`user_${username}`);
-      if (existingUser) {
-        setError('Username already exists. Please choose another.');
-        return;
-      }
-      localStorage.setItem(`user_${username}`, password);
-      localStorage.setItem(`user_${username}_email`, email);
-    }
-
-    onLogin(username, password);
+    playSFX('click');
+    setLoading(true);
+    // Simulate API Call
+    setTimeout(() => {
+        setLoading(false);
+        playSFX('success');
+        onLogin({ 
+            username: formData.username || (mode === 'signup' ? 'NewScholar' : 'Scholar'), 
+            email: formData.email 
+        });
+    }, 1500);
   };
 
-  const handleGuestLogin = () => {
-    onLogin('guest', 'guest');
+  const switchMode = (m: 'login' | 'signup') => {
+      playSFX('click');
+      setMode(m);
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wNSI+PHBhdGggZD0iTTM2IDE0aDJ2MmgtMnptMCAxMGgydjJoLTJ6bTAgMTBoMnYyaC0yek0yNiAxNGgydjJoLTJ6bTAgMTBoMnYyaC0yek0xNiAxNGgydjJoLTJ6Ii8+PC9nPjwvZz48L3N2Zz4=')] opacity-20"></div>
-      
-      <div className="relative w-full max-w-md">
-        <div className="absolute -top-20 left-1/2 -translate-x-1/2">
-          <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center shadow-2xl shadow-purple-500/50 animate-pulse">
-            <Sparkles className="w-8 h-8 text-white" />
-          </div>
-        </div>
+    <div className="fixed inset-0 z-[100] bg-academic-bg dark:bg-stone-950 flex flex-col items-center justify-center p-6 transition-colors duration-700">
+       
+       <div className="w-full max-w-md animate-in fade-in slide-in-from-bottom-8 duration-1000">
+           <div className="text-center mb-10">
+               <Logo size="xl" className="mx-auto mb-6" />
+               <h1 className="text-5xl font-serif font-bold text-academic-text dark:text-stone-100 mb-2 tracking-tight">POLI</h1>
+           </div>
 
-        <div className="bg-white/10 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20 overflow-hidden">
-          <div className="p-8 sm:p-12">
-            <div className="text-center mb-8">
-              <h1 className="text-3xl sm:text-4xl font-bold text-white mb-2">
-                POLI
-              </p>
-            </div>
+           <div className="bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-2xl shadow-xl overflow-hidden relative">
+               {/* Decorative Gradient */}
+               <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-academic-accent via-academic-gold to-academic-accent"></div>
 
-            <div className="flex gap-2 mb-8 bg-black/20 p-1 rounded-xl">
-              <button
-                onClick={() => setIsLogin(true)}
-                className={`flex-1 py-3 px-4 rounded-lg font-medium transition-all ${
-                  isLogin
-                    ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg'
-                    : 'text-purple-200 hover:text-white'
-                }`}
-              >
-                Login
-              </button>
-              <button
-                onClick={() => setIsLogin(false)}
-                className={`flex-1 py-3 px-4 rounded-lg font-medium transition-all ${
-                  !isLogin
-                    ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg'
-                    : 'text-purple-200 hover:text-white'
-                }`}
-              >
-                Sign Up
-              </button>
-            </div>
+               <div className="p-8">
+                   <div className="flex gap-4 mb-8 bg-stone-100 dark:bg-stone-800 p-1 rounded-xl">
+                       <button 
+                        onClick={() => switchMode('login')}
+                        className={`flex-1 py-2 text-xs font-bold uppercase tracking-wider rounded-lg transition-all ${mode === 'login' ? 'bg-white dark:bg-stone-700 shadow-sm text-academic-text dark:text-white' : 'text-stone-400 hover:text-stone-600'}`}
+                       >
+                           Log In
+                       </button>
+                       <button 
+                        onClick={() => switchMode('signup')}
+                        className={`flex-1 py-2 text-xs font-bold uppercase tracking-wider rounded-lg transition-all ${mode === 'signup' ? 'bg-white dark:bg-stone-700 shadow-sm text-academic-text dark:text-white' : 'text-stone-400 hover:text-stone-600'}`}
+                       >
+                           Sign Up
+                       </button>
+                   </div>
 
-            <form onSubmit={handleSubmit} className="space-y-5">
-              <div className="space-y-2">
-                <label className="block text-sm font-medium text-purple-200">
-                  Username
-                </label>
-                <div className="relative">
-                  <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-purple-300" />
-                  <input
-                    type="text"
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
-                    className="w-full pl-12 pr-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-purple-300/50 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
-                    placeholder="Enter your username"
-                  />
-                </div>
-              </div>
+                   <form onSubmit={handleSubmit} className="space-y-4">
+                       {mode === 'signup' && (
+                           <div className="relative group">
+                               <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-400 group-focus-within:text-academic-gold transition-colors" />
+                               <input 
+                                type="text" 
+                                placeholder="Username"
+                                className="w-full pl-10 pr-4 py-3 bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-xl text-sm font-medium outline-none focus:border-academic-gold transition-all text-academic-text dark:text-white"
+                                value={formData.username}
+                                onChange={e => setFormData({...formData, username: e.target.value})}
+                                onFocus={() => playSFX('hover')}
+                                required
+                               />
+                           </div>
+                       )}
+                       <div className="relative group">
+                           <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-400 group-focus-within:text-academic-gold transition-colors" />
+                           <input 
+                            type="email" 
+                            placeholder="Email Address"
+                            className="w-full pl-10 pr-4 py-3 bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-xl text-sm font-medium outline-none focus:border-academic-gold transition-all text-academic-text dark:text-white"
+                            value={formData.email}
+                            onChange={e => setFormData({...formData, email: e.target.value})}
+                            onFocus={() => playSFX('hover')}
+                            required
+                           />
+                       </div>
+                       <div className="relative group">
+                           <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-400 group-focus-within:text-academic-gold transition-colors" />
+                           <input 
+                            type="password" 
+                            placeholder="Password"
+                            className="w-full pl-10 pr-4 py-3 bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-xl text-sm font-medium outline-none focus:border-academic-gold transition-all text-academic-text dark:text-white"
+                            value={formData.password}
+                            onChange={e => setFormData({...formData, password: e.target.value})}
+                            onFocus={() => playSFX('hover')}
+                            required
+                           />
+                       </div>
 
-              {!isLogin && (
-                <div className="space-y-2">
-                  <label className="block text-sm font-medium text-purple-200">
-                    Email
-                  </label>
-                  <div className="relative">
-                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-purple-300" />
-                    <input
-                      type="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      className="w-full pl-12 pr-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-purple-300/50 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
-                      placeholder="Enter your email"
-                    />
-                  </div>
-                </div>
-              )}
+                       <button 
+                        type="submit" 
+                        disabled={loading}
+                        className="w-full py-4 bg-academic-accent dark:bg-indigo-600 text-white font-bold uppercase tracking-widest text-xs rounded-xl hover:bg-stone-800 dark:hover:bg-indigo-700 transition-all flex items-center justify-center gap-2 mt-4 active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed"
+                       >
+                           {loading ? 'Authenticating...' : (mode === 'login' ? 'Access Archive' : 'Enter Network')} <ArrowRight className="w-4 h-4" />
+                       </button>
+                   </form>
+               </div>
+           </div>
 
-              <div className="space-y-2">
-                <label className="block text-sm font-medium text-purple-200">
-                  Password
-                </label>
-                <div className="relative">
-                  <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-purple-300" />
-                  <input
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="w-full pl-12 pr-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-purple-300/50 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
-                    placeholder="Enter your password"
-                  />
-                </div>
-              </div>
-
-              {error && (
-                <div className="bg-red-500/20 border border-red-500/50 rounded-xl p-4 text-red-200 text-sm">
-                  {error}
-                </div>
-              )}
-
-              <button
-                type="submit"
-                className="w-full bg-gradient-to-r from-purple-500 to-pink-500 text-white py-4 rounded-xl font-semibold shadow-lg shadow-purple-500/50 hover:shadow-xl hover:shadow-purple-500/60 transition-all hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2 group"
-              >
-                {isLogin ? 'Sign In' : 'Create Account'}
-                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-              </button>
-            </form>
-
-            <div className="mt-6 flex flex-col gap-4">
-              <div className="relative">
-                <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-white/20"></div>
-                </div>
-                <div className="relative flex justify-center text-xs">
-                  <span className="bg-transparent px-2 text-purple-200">or</span>
-                </div>
-              </div>
-
-              <button
-                onClick={handleGuestLogin}
-                className="w-full bg-white/5 border border-white/20 text-white py-3 rounded-xl font-medium hover:bg-white/10 transition-all flex items-center justify-center gap-2"
-              >
-                <Globe className="w-5 h-5" />
-                Continue as Guest
-              </button>
-            </div>
-
-            <div className="mt-6 text-center">
-              <p className="text-purple-200 text-sm">
-                {isLogin ? "Don't have an account? " : "Already have an account? "}
-                <button
-                  onClick={() => setIsLogin(!isLogin)}
-                  className="text-purple-300 hover:text-white font-semibold transition-colors"
-                >
-                  {isLogin ? 'Sign Up' : 'Sign In'}
-                </button>
-              </p>
-            </div>
-          </div>
-
-          <div className="bg-black/20 px-8 py-4 sm:px-12">
-            <p className="text-purple-200/70 text-xs text-center">
-              By continuing, you agree to POLI's Terms of Service and Privacy Policy
-            </p>
-          </div>
-        </div>
-
-        <div className="mt-8 text-center">
-          <p className="text-purple-200/50 text-sm">
-            © 2024 POLI. All rights reserved.
-          </p>
-        </div>
-      </div>
+           <div className="mt-8 text-center space-y-4">
+               <button 
+                onClick={() => { playSFX('click'); onGuest(); }}
+                className="text-stone-500 dark:text-stone-400 text-xs font-bold uppercase tracking-widest hover:text-academic-accent dark:hover:text-white transition-colors flex items-center justify-center gap-2 w-full"
+                onMouseEnter={() => playSFX('hover')}
+               >
+                   <Globe className="w-4 h-4" /> Continue as Guest
+               </button>
+               <div className="flex items-center justify-center gap-2 text-[10px] text-stone-400">
+                   <ShieldCheck className="w-3 h-3" /> Secure Encrypted Connection
+               </div>
+           </div>
+       </div>
     </div>
   );
 };

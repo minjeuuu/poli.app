@@ -295,26 +295,6 @@ export const generateTheoryExplanation = async (theory: string): Promise<any> =>
 
 // ==================== SIMULATION & SCENARIOS ====================
 
-export const generatePoliticalScenario = async (prompt: string): Promise<any> => {
-  const response = await generateWithRetry({
-    model: 'claude-sonnet-4-20250514',
-    contents: `Generate realistic political scenario: "${prompt}"
-    
-    Create a detailed simulation with:
-    - scenario: Description of the situation
-    - actors: Key players and their interests
-    - choices: Available options and decisions
-    - consequences: Outcomes of each choice
-    - variables: Factors that affect outcomes
-    - realism: Based on real political dynamics
-    - lessons: What this teaches about politics
-    
-    Return interactive scenario JSON.`,
-    config: { responseMimeType: "application/json", maxOutputTokens: 3072 }
-  });
-  return safeParse(response.text || '{}', {});
-};
-
 // ==================== EDUCATIONAL CONTENT ====================
 
 export const generateLesson = async (topic: string, level: 'beginner' | 'intermediate' | 'advanced'): Promise<any> => {

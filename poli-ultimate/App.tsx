@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useMemo } from 'react';
 import { MainTab, DailyContext, SavedItem, UserProfile, ThemeScope, SpecialTheme } from './types';
 import { fetchDailyContext } from './services/homeService';
@@ -19,14 +20,15 @@ import TheoryTab from './components/tabs/TheoryTab';
 import PersonsTab from './components/tabs/PersonsTab';
 import LearnTab from './components/tabs/LearnTab';
 import SimTab from './components/tabs/SimTab';
-import GamesTab from './components/tabs/GamesTab';
+import GamesTab from './components/tabs/GamesTab'; // New Import
 import RatesTab from './components/tabs/RatesTab';
 import ProfileTab from './components/tabs/ProfileTab';
 import LibraryTab from './components/tabs/LibraryTab';
 import MessageTab from './components/tabs/MessageTab';
 import AlmanacTab from './components/tabs/AlmanacTab';
-// AI-POWERED TABS
+// NEW AI-POWERED TABS
 import NewsHubTab from './components/tabs/NewsHubTab';
+import ForecastingTab from './components/tabs/ForecastingTab';
 import DebateArenaTab from './components/tabs/DebateArenaTab';
 import ResearchTab from './components/tabs/ResearchTab';
 import CrisisTrackerTab from './components/tabs/CrisisTrackerTab';
@@ -146,7 +148,7 @@ export default function App() {
     } else if (type === 'Logout') {
         handleLogout();
     } else {
-        if (['home','read','explore','messages','social','countries','sim','games','translate','comparative','theory','persons','learn','rates','profile', 'almanac', 'news', 'debate', 'research', 'crisis', 'policy', 'election', 'intel'].includes(type.toLowerCase())) {
+        if (['home','read','explore','messages','social','countries','sim','games','translate','comparative','theory','persons','learn','rates','profile', 'almanac', 'news', 'forecast', 'debate', 'research', 'crisis', 'policy', 'election', 'intel'].includes(type.toLowerCase())) {
             setActiveTab(type.toLowerCase() as MainTab);
             setOverlayStack([]);
         }
@@ -371,6 +373,9 @@ export default function App() {
         </div>
         <div style={{ display: activeTab === 'news' ? 'block' : 'none', height: '100%' }}>
             <NewsHubTab onNavigate={handleNavigate} />
+        </div>
+        <div style={{ display: activeTab === 'forecast' ? 'block' : 'none', height: '100%' }}>
+            <ForecastingTab onNavigate={handleNavigate} />
         </div>
         <div style={{ display: activeTab === 'debate' ? 'block' : 'none', height: '100%' }}>
             <DebateArenaTab onNavigate={handleNavigate} />

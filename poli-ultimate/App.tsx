@@ -373,9 +373,6 @@ export default function App() {
         <div style={{ display: activeTab === 'news' ? 'block' : 'none', height: '100%' }}>
             <NewsHubTab onNavigate={handleNavigate} />
         </div>
-        <div style={{ display: activeTab === 'forecast' ? 'block' : 'none', height: '100%' }}>
-            <ForecastingTab onNavigate={handleNavigate} />
-        </div>
         <div style={{ display: activeTab === 'debate' ? 'block' : 'none', height: '100%' }}>
             <DebateArenaTab onNavigate={handleNavigate} />
         </div>

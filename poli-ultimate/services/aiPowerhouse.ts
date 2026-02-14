@@ -9,7 +9,7 @@ export const generateRealTimeNews = async (category?: string, region?: string): 
   // NO CACHE - Always fresh news
   const response = await generateWithRetry({
     model: 'claude-sonnet-4-20250514',
-    contents: `Generate 15 realistic, current political news articles ${category ? `about ${category}` : ''} ${region ? `from ${region}` : 'from around the world'}.
+    contents: `Generate 20 realistic, current political news articles ${category ? `about ${category}` : ''} ${region ? `from ${region}` : 'from around the world'}.
     
     CRITICAL: Include REAL working URLs. Use actual news domains like:
     - https://www.bbc.com/news/world

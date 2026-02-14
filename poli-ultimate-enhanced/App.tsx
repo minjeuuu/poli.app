@@ -194,6 +194,13 @@ export default function App() {
     setInitPhase('intro');
   };
 
+  const handleGuest = () => {
+    console.log('👤 Guest mode activated');
+    // Guest users skip intro and go directly to app
+    setIsAuthenticated(true);
+    setInitPhase('ready');
+  };
+
   const handleSkipIntro = () => {
     console.log('⏭️ Intro skipped');
     setInitPhase('ready');
@@ -305,7 +312,7 @@ export default function App() {
   }
 
   if (initPhase === 'auth') {
-    return <AuthScreen onLogin={handleLogin} />;
+    return <AuthScreen onLogin={handleLogin} onGuest={handleGuest} />;
   }
 
   if (initPhase === 'intro') {

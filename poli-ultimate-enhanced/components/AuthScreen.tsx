@@ -10,7 +10,7 @@ interface AuthScreenProps {
   onGuest: () => void;
 }
 
-const AuthScreen: React.FC<AuthScreenProps> = ({ onLogin }) => {
+const AuthScreen: React.FC<AuthScreenProps> = ({ onLogin, onGuest }) => {
   const [mode, setMode] = useState<'login' | 'signup'>('login');
   const [formData, setFormData] = useState({ email: '', password: '', username: '' });
   const [loading, setLoading] = useState(false);
@@ -62,7 +62,9 @@ const AuthScreen: React.FC<AuthScreenProps> = ({ onLogin }) => {
   const handleGuestLogin = () => {
     playSFX('click');
     const guestUser = signInAsGuest();
+    // Call both to ensure proper state management
     onLogin(guestUser);
+    onGuest();
   };
 
   const switchMode = (m: 'login' | 'signup') => {
@@ -80,7 +82,7 @@ const AuthScreen: React.FC<AuthScreenProps> = ({ onLogin }) => {
                <Logo size="xl" className="mx-auto mb-6" />
                <h1 className="text-5xl font-serif font-bold text-academic-text dark:text-stone-100 mb-2 tracking-tight">POLI</h1>
                <p className="text-xs text-stone-500 dark:text-stone-400 tracking-widest uppercase">
-                 {firebaseEnabled ? '🔒 Secure Cloud Authentication' : '💾 Local Storage Mode'}
+                 🔒 Secure Local Authentication
                </p>
            </div>
 
@@ -166,43 +168,19 @@ const AuthScreen: React.FC<AuthScreenProps> = ({ onLogin }) => {
                            {loading ? 'Authenticating...' : (mode === 'login' ? 'Access Archive' : 'Create Account')} <ArrowRight className="w-4 h-4" />
                        </button>
                    </form>
-
-                   {/* Google Sign In */}
-                   <div className="mt-6">
-                     <div className="relative">
-                       <div className="absolute inset-0 flex items-center">
-                         <div className="w-full border-t border-stone-200 dark:border-stone-800"></div>
-                       </div>
-                       <div className="relative flex justify-center text-xs uppercase">
-                         <span className="bg-white dark:bg-stone-900 px-2 text-stone-500 dark:text-stone-400">
-                           Or continue with
-                         </span>
-                       </div>
-                     </div>
-
-                     <button
-                       onClick={handleGoogleSignIn}
-                       disabled={loading || !firebaseEnabled}
-                       className="mt-4 w-full py-3 bg-white dark:bg-stone-800 border-2 border-stone-200 dark:border-stone-700 text-stone-700 dark:text-stone-200 font-semibold text-sm rounded-xl hover:bg-stone-50 dark:hover:bg-stone-700 transition-all flex items-center justify-center gap-2 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
-                       onMouseEnter={() => playSFX('hover')}
-                     >
-                       <Chrome className="w-5 h-5" />
-                       Sign in with Google
-                     </button>
-                   </div>
                </div>
            </div>
 
            <div className="mt-8 text-center space-y-4">
                <button 
-                onClick={() => { playSFX('click'); onGuest(); }}
+                onClick={handleGuestLogin}
                 className="text-stone-500 dark:text-stone-400 text-xs font-bold uppercase tracking-widest hover:text-academic-accent dark:hover:text-white transition-colors flex items-center justify-center gap-2 w-full"
                 onMouseEnter={() => playSFX('hover')}
                >
                    <Globe className="w-4 h-4" /> Continue as Guest
                </button>
                <div className="flex items-center justify-center gap-2 text-[10px] text-stone-400">
-                   <ShieldCheck className="w-3 h-3" /> {firebaseEnabled ? 'Firebase Secure Authentication' : 'Browser Encrypted Storage'}
+                   <ShieldCheck className="w-3 h-3" /> Browser Encrypted Storage
                </div>
            </div>
        </div>

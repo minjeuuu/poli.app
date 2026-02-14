@@ -1,0 +1,28 @@
+
+import { generateWithRetry, safeParse, getLanguageInstruction } from "../common";
+
+export const fetchTourismProfile = async (countryName: string) => {
+    const prompt = `
+    GENERATE TOURISM DOSSIER: ${countryName}.
+    PROTOCOL: POLI ARCHIVE V1.
+    
+    REQUIREMENTS:
+    - **Attractions**: Top 4 tourist sites with type (Nature/Historic/Urban).
+    - **Visa Policy**: General summary for international visitors.
+    
+    RETURN JSON ONLY:
+    {
+        "attractions": [{ "name": "string", "type": "string" }],
+        "visaPolicy": "string"
+    }
+    ${getLanguageInstruction()}
+    `;
+
+    const response = await generateWithRetry({
+        model: 'claude-sonnet-4-20250514',
+        contents: prompt,
+        config: { responseMimeType: "application/json" }
+    });
+    
+    return safeParse(response.text || '{}', {});
+};

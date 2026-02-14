@@ -1,0 +1,3 @@
+export const translateText = async (text: string, from: string, to: string) => {
+  // implementation...
+};

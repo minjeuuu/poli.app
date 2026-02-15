@@ -254,7 +254,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ prefs, onUpdate }) =
             );
              case 'assets': return (
                 <div className="space-y-6">
-                    <div className="p-6 bg-gradient-to-br from-stone-100 to-white dark:from-stone-900 dark:to-black border border-stone-200 dark:border-stone-800 rounded-2xl">
+                    <div className="p-6 bg-stone-100 dark:bg-stone-800 dark:from-stone-900 dark:to-black border border-stone-200 dark:border-stone-800 rounded-2xl">
                         <h3 className="text-sm font-bold uppercase tracking-[0.2em] text-academic-gold mb-4">Official Brand Assets</h3>
                         <p className="text-xs text-stone-500 dark:text-stone-400 mb-6 max-w-sm">
                             Download high-resolution PNGs of the POLI pillar emblem for official academic or press usage.

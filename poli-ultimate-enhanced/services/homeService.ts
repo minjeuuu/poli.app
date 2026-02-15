@@ -1,38 +1,66 @@
 // services/homeService.ts
-
 import { withCache, safeParse, getLanguageInstruction, generateWithRetry } from "./common";
 import { HighlightDetail, HighlightedEntity, DailyContext } from "../types";
+import { FALLBACK_DAILY_CONTEXT } from "../data/homeData";
 import { generateDailyBriefing } from "./aiPowerhouse";
 
 /**
- * Fetches detailed information about a specific highlight by its ID.
+ * Fetches detailed information about a specific highlight entity.
  */
 export const fetchHighlightDetail = async (
-  highlightId: string
+  entityTitle: string
 ): Promise<HighlightDetail> => {
-  const cacheKey = `highlightDetail:${highlightId}`;
+  const cacheKey = `highlightDetail:${entityTitle}`;
 
   return withCache(cacheKey, async () => {
     const instruction = getLanguageInstruction();
-    const prompt = `
-      ${instruction}
-      Provide detailed information for the highlight with ID "${highlightId}".
-      Include text, author, context, and any related entities.
-      Return result as JSON matching the HighlightDetail type.
-    `;
+    const prompt = `${instruction}
+You are a political science expert. Provide comprehensive information about: "${entityTitle}".
 
-    const result = await generateWithRetry({
-      model: "claude-v1",
-      contents: prompt,
-      config: { maxOutputTokens: 2000 },
-    });
+Return ONLY valid JSON (no markdown) matching this exact structure:
+{
+  "title": "${entityTitle}",
+  "subtitle": "Brief subtitle or role",
+  "category": "Person/Country/Ideology/Organization/Discipline",
+  "summary": "2-3 paragraph overview",
+  "historicalBackground": "Historical context paragraph",
+  "significance": "Why this matters in political science",
+  "keyConcepts": [{"concept": "...", "definition": "..."}],
+  "modernConnections": ["Connection 1", "Connection 2"],
+  "sources": [{"title": "Source name", "url": "#"}]
+}`;
 
-    return safeParse<HighlightDetail>(result.text, {
-      id: highlightId,
-      text: "",
-      author: "",
-      relatedEntities: [],
-    });
+    try {
+      const result = await generateWithRetry({
+        model: 'claude-sonnet-4-20250514',
+        contents: prompt,
+        config: { maxOutputTokens: 2000 },
+      });
+
+      return safeParse<HighlightDetail>(result.text, {
+        title: entityTitle,
+        subtitle: '',
+        category: 'Entity',
+        summary: 'Information not available.',
+        historicalBackground: '',
+        significance: '',
+        keyConcepts: [],
+        modernConnections: [],
+        sources: [],
+      });
+    } catch (e) {
+      return {
+        title: entityTitle,
+        subtitle: '',
+        category: 'Entity',
+        summary: 'Could not load details at this time.',
+        historicalBackground: '',
+        significance: '',
+        keyConcepts: [],
+        modernConnections: [],
+        sources: [],
+      };
+    }
   });
 };
 
@@ -46,49 +74,54 @@ export const fetchHighlightedEntities = async (
 
   return withCache(cacheKey, async () => {
     const instruction = getLanguageInstruction();
-    const prompt = `
-      ${instruction}
-      List highlights related to the topic "${topic}".
-      Return an array of HighlightedEntity JSON objects with id, text, and type.
-    `;
+    const prompt = `${instruction}
+List 5 important political entities related to: "${topic}".
+Return ONLY a JSON array (no markdown):
+[{ "category": "Person/Country/Ideology/Org", "title": "...", "subtitle": "...", "meta": "..." }]`;
 
-    const result = await generateWithRetry({
-      model: "claude-v1",
-      contents: prompt,
-      config: { maxOutputTokens: 2000 },
-    });
-
-    return safeParse<HighlightedEntity[]>(result.text, []);
+    try {
+      const result = await generateWithRetry({
+        model: 'claude-sonnet-4-20250514',
+        contents: prompt,
+        config: { maxOutputTokens: 1500 },
+      });
+      return safeParse<HighlightedEntity[]>(result.text, []);
+    } catch (e) {
+      return [];
+    }
   });
 };
 
 /**
  * Fetches daily context including news, quotes, and highlights for a given date.
- * NOW FULLY AI-POWERED - NO FALLBACKS
  */
 export const fetchDailyContext = async (date: Date): Promise<DailyContext> => {
   const dateKey = date.toISOString().split('T')[0];
   const cacheKey = `dailyContext:${dateKey}`;
 
   return withCache(cacheKey, async () => {
-    // Use AI Powerhouse daily briefing
-    const briefing = await generateDailyBriefing();
-    
-    // Transform to DailyContext format
-    return {
-      date: dateKey,
-      quote: briefing.quote || { text: "Democracy is not a spectator sport.", author: "Unknown", year: new Date().getFullYear().toString() },
-      news: briefing.topStories || [],
-      highlightedPerson: briefing.highlightedPerson || { category: "Person", title: "Political Leader", subtitle: "Current", meta: "Active" },
-      highlightedCountry: briefing.highlightedCountry || { category: "Country", title: "United States", subtitle: "Americas", meta: "Sovereign" },
-      highlightedIdeology: briefing.highlightedIdeology || { category: "Ideology", title: "Democracy", subtitle: "Political System", meta: "Modern" },
-      highlightedDiscipline: briefing.highlightedDiscipline || { category: "Discipline", title: "Political Theory", subtitle: "Academic", meta: "Core" },
-      highlightedOrg: briefing.highlightedOrg || { category: "Organization", title: "United Nations", subtitle: "International", meta: "Active" },
-      dailyFact: briefing.dailyFact || { content: "Political engagement shapes society.", source: "Common Knowledge", type: "fact" },
-      dailyTrivia: briefing.dailyTrivia || { content: "The term 'politics' has ancient Greek origins.", source: "Etymology", type: "trivia" },
-      historicalEvents: briefing.historicalContext || [],
-      otherHighlights: briefing.otherHighlights || [],
-      synthesis: briefing.analysis || "Stay informed about political developments worldwide."
-    };
+    try {
+      // Use AI Powerhouse daily briefing
+      const briefing = await generateDailyBriefing();
+
+      return {
+        date: dateKey,
+        quote: briefing.quote || FALLBACK_DAILY_CONTEXT.quote,
+        news: briefing.topStories || briefing.news || [],
+        highlightedPerson: briefing.highlightedPerson || FALLBACK_DAILY_CONTEXT.highlightedPerson,
+        highlightedCountry: briefing.highlightedCountry || FALLBACK_DAILY_CONTEXT.highlightedCountry,
+        highlightedIdeology: briefing.highlightedIdeology || FALLBACK_DAILY_CONTEXT.highlightedIdeology,
+        highlightedDiscipline: briefing.highlightedDiscipline || FALLBACK_DAILY_CONTEXT.highlightedDiscipline,
+        highlightedOrg: briefing.highlightedOrg || FALLBACK_DAILY_CONTEXT.highlightedOrg,
+        dailyFact: briefing.dailyFact || FALLBACK_DAILY_CONTEXT.dailyFact,
+        dailyTrivia: briefing.dailyTrivia || FALLBACK_DAILY_CONTEXT.dailyTrivia,
+        historicalEvents: briefing.historicalContext || briefing.historicalEvents || [],
+        otherHighlights: briefing.otherHighlights || [],
+        synthesis: briefing.analysis || briefing.synthesis || FALLBACK_DAILY_CONTEXT.synthesis,
+      };
+    } catch (e) {
+      console.warn('generateDailyBriefing failed, using fallback:', e);
+      return { ...FALLBACK_DAILY_CONTEXT, date: dateKey };
+    }
   });
 };

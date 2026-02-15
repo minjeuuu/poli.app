@@ -12,7 +12,7 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({ profile, onEdit })
     return (
         <div className="bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-2xl p-8 relative overflow-hidden shadow-sm">
             {/* Background Pattern */}
-            <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-r from-academic-accent to-academic-gold opacity-10"></div>
+            <div className="absolute top-0 left-0 w-full h-32 bg-stone-100 dark:bg-stone-800 opacity-10"></div>
             
             <div className="relative flex flex-col md:flex-row items-end md:items-center gap-6 mt-12">
                 {/* Avatar */}
@@ -38,7 +38,7 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({ profile, onEdit })
                     
                     <div className="flex flex-wrap gap-4 mt-4 text-xs text-stone-500">
                         {profile.country && <div className="flex items-center gap-1"><MapPin className="w-3 h-3" /> {profile.country}</div>}
-                        <div className="flex items-center gap-1"><Calendar className="w-3 h-3" /> Joined {new Date(profile.joinedDate).toLocaleDateString()}</div>
+                        <div className="flex items-center gap-1"><Calendar className="w-3 h-3" /> Joined {profile.joinedDate ? new Date(profile.joinedDate).toLocaleDateString() : "Member"}</div>
                         {profile.website && <div className="flex items-center gap-1"><LinkIcon className="w-3 h-3" /> <a href={profile.website} target="_blank" rel="noreferrer" className="hover:underline">Website</a></div>}
                     </div>
                 </div>

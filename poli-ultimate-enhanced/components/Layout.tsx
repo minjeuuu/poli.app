@@ -168,7 +168,7 @@ const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange, user,
           {/* Menu Panel */}
           <div className="absolute top-0 left-0 bottom-0 w-[85%] max-w-sm bg-white dark:bg-gray-900 shadow-2xl overflow-y-auto">
             {/* Menu Header */}
-            <div className="sticky top-0 bg-gradient-to-r from-indigo-600 to-purple-600 text-white p-4 flex items-center justify-between z-10">
+            <div className="sticky top-0 bg-stone-900 dark:bg-stone-950 text-white border-b border-stone-800 p-4 flex items-center justify-between z-10">
               <div>
                 <h2 className="text-xl font-bold">POLI Navigation</h2>
                 <p className="text-xs text-indigo-100">AI-Powered Platform</p>

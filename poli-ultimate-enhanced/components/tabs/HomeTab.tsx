@@ -137,7 +137,7 @@ const HomeTab: React.FC<HomeTabProps> = ({
                   active:scale-[0.98]
                   flex items-center justify-center gap-3
                   shadow-sm hover:shadow-md
-                  bg-gradient-to-r from-stone-50 via-white to-stone-50
+                  bg-white dark:bg-stone-900
                   border border-stone-200
                   text-stone-500 font-bold uppercase tracking-[0.2em] text-xs
                   hover:border-academic-gold/50 hover:text-academic-gold
@@ -148,7 +148,6 @@ const HomeTab: React.FC<HomeTabProps> = ({
                   dark:hover:bg-stone-800
                 "
             >
-                <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 bg-gradient-to-r from-transparent via-academic-gold/5 to-transparent dark:via-indigo-500/10"></div>
                 <Sparkles className="w-4 h-4 opacity-60 group-hover:opacity-100 transition-opacity group-hover:animate-pulse" /> 
                 <span className="relative z-10">Surprise Me</span>
                 <Shuffle className="w-3 h-3 opacity-40 group-hover:opacity-100 transition-opacity" />

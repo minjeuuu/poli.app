@@ -1,280 +1,197 @@
-// components/tabs/ElectionTrackerTab.tsx
-import React, { useState, useEffect } from 'react';
-import { Vote, MapPin, TrendingUp, Users, Calendar, BarChart3, AlertCircle, RefreshCw } from 'lucide-react';
-import { generateWithRetry, safeParse } from '../../services/common';
+// ElectionTrackerTab.tsx - Minimalist flat design with election data
+import React, { useState } from 'react';
+import { Vote, Globe, Calendar, TrendingUp, Users, BarChart2, X, AlertCircle, CheckCircle } from 'lucide-react';
 
 interface ElectionTrackerTabProps {
   onNavigate: (type: string, payload: any) => void;
 }
 
+interface Election {
+  id: string;
+  country: string;
+  region: string;
+  type: string;
+  date: string;
+  status: 'upcoming' | 'ongoing' | 'completed';
+  significance: 'major' | 'notable' | 'minor';
+  description: string;
+  candidates?: { name: string; party: string; polling?: number; result?: number; won?: boolean }[];
+  turnout?: number;
+  outcome?: string;
+  keyIssues: string[];
+  internationalObservers?: boolean;
+}
+
+const ELECTIONS: Election[] = [
+  { id:'1', country:'Germany', region:'Europe', type:'Federal Election', date:'2025-02-23', status:'completed', significance:'major', description:'Germany\'s snap federal election following the collapse of the Scholz coalition government.', candidates:[{name:'Friedrich Merz',party:'CDU/CSU',result:28.5,won:true},{name:'Olaf Scholz',party:'SPD',result:16.4},{name:'Robert Habeck',party:'Greens',result:11.6},{name:'Alice Weidel',party:'AfD',result:20.8}], turnout:84.1, outcome:'CDU/CSU won with 28.5%. Merz expected to form coalition. AfD second with 20.8% - historic high.', keyIssues:['Economic stagnation','Immigration','Energy costs','Security'], internationalObservers:true },
+  { id:'2', country:'France', region:'Europe', type:'Presidential Election', date:'2027-04-01', status:'upcoming', significance:'major', description:'Next French presidential election. Macron constitutionally barred from running. Major uncertainty.', candidates:[{name:'Jordan Bardella',party:'National Rally',polling:32},{name:'Marine Le Pen',party:'National Rally',polling:28},{name:'Édouard Philippe',party:'Horizons',polling:22}], keyIssues:['Identity & immigration','Cost of living','France\'s EU role','Security'], internationalObservers:false },
+  { id:'3', country:'Canada', region:'Americas', type:'Federal Election', date:'2025-04-28', status:'upcoming', significance:'major', description:'Canadian federal election following Liberal minority government call. Pierre Poilievre\'s Conservatives lead polls.', candidates:[{name:'Pierre Poilievre',party:'Conservative',polling:43},{name:'Mark Carney',party:'Liberal',polling:26},{name:'Jagmeet Singh',party:'NDP',polling:18}], keyIssues:['Housing crisis','Cost of living','Healthcare','Canada-US relations'], internationalObservers:false },
+  { id:'4', country:'Philippines', region:'Asia', type:'Midterm Elections', date:'2025-05-12', status:'upcoming', significance:'notable', description:'Philippine midterm elections for Senate and House seats. Key test of Marcos administration.', keyIssues:['Duterte-Marcos alliance breakdown','South China Sea','Economic populism'], internationalObservers:true },
+  { id:'5', country:'Australia', region:'Oceania', type:'Federal Election', date:'2025-05-17', status:'upcoming', significance:'major', description:'Australian federal election between incumbent Labor PM Anthony Albanese and Coalition.', candidates:[{name:'Anthony Albanese',party:'Labor',polling:48},{name:'Peter Dutton',party:'Coalition',polling:40}], keyIssues:['Housing','Cost of living','Climate','AUKUS'], internationalObservers:false },
+  { id:'6', country:'Romania', region:'Europe', type:'Presidential Election Re-run', date:'2025-05-18', status:'upcoming', significance:'notable', description:'Re-run after Constitutional Court annulled first round due to foreign interference allegations.', keyIssues:['EU relations','Russia influence','Democratic integrity'], internationalObservers:true },
+  { id:'7', country:'Poland', region:'Europe', type:'Presidential Election', date:'2025-05-18', status:'upcoming', significance:'major', description:'Polish presidential election. Incumbent Duda cannot run. Tusk government backed candidate vs. PiS.', candidates:[{name:'Rafał Trzaskowski',party:'Civic Coalition',polling:38},{name:'Karol Nawrocki',party:'PiS-backed',polling:34}], keyIssues:['Rule of law','EU relations','Security','Judicial independence'], internationalObservers:true },
+  { id:'8', country:'Kenya', region:'Africa', type:'General Election', date:'2027-08-01', status:'upcoming', significance:'notable', description:'Kenyan general election following political turbulence of Ruto administration and youth protests.', keyIssues:['Youth unemployment','Corruption','Taxation','Regional security'], internationalObservers:true },
+];
+
+const SIGNIFICANCE_STYLE: Record<string, string> = {
+  major: 'text-stone-900 dark:text-white border-stone-300 dark:border-stone-600 bg-white dark:bg-stone-900',
+  notable: 'text-stone-700 dark:text-stone-300 border-stone-200 dark:border-stone-700',
+  minor: 'text-stone-500 border-stone-100 dark:border-stone-800',
+};
+const STATUS_STYLE: Record<string, { dot: string; label: string }> = {
+  upcoming: { dot: 'bg-blue-500', label: 'text-blue-600 dark:text-blue-400' },
+  ongoing: { dot: 'bg-green-500 animate-pulse', label: 'text-green-600 dark:text-green-400' },
+  completed: { dot: 'bg-stone-400', label: 'text-stone-500' },
+};
+
 export default function ElectionTrackerTab({ onNavigate }: ElectionTrackerTabProps) {
-  const [elections, setElections] = useState<any[]>([]);
-  const [selectedElection, setSelectedElection] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState<string>('upcoming');
+  const [selected, setSelected] = useState<Election | null>(null);
+  const [filterStatus, setFilterStatus] = useState('all');
+  const [filterRegion, setFilterRegion] = useState('all');
 
-  const loadElections = async () => {
-    setLoading(true);
-    try {
-      const response = await generateWithRetry({
-        model: 'claude-sonnet-4-20250514',
-        contents: `Generate comprehensive global election tracker data.
-        
-        Include 20-25 elections (upcoming, ongoing, recent) worldwide:
-        
-        For each election:
-        - country: Country name
-        - type: presidential/parliamentary/local/referendum
-        - date: Election date
-        - status: upcoming/ongoing/completed
-        - importance: critical/high/medium/low
-        - turnoutExpected: Expected turnout %
-        - turnoutActual: Actual turnout % (if completed)
-        - description: 2-3 sentence overview
-        - keyIssues: Main campaign issues (array)
-        - candidates: Array of candidates with {name, party, support, platform}
-        - polls: Latest polling data
-        - results: Results if completed
-        - analysis: AI analysis of significance
-        - predictions: Likely outcome (if upcoming)
-        - historicalContext: Background
-        - internationalImpact: Global significance
-        
-        Cover all continents and election types.
-        Make data realistic and current.
-        Return JSON array only.`,
-        config: { responseMimeType: "application/json", maxOutputTokens: 6144 }
-      });
-      
-      setElections(safeParse(response.text || '[]', []));
-    } catch (error) {
-      console.error('Election loading error:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const filtered = ELECTIONS.filter(e => {
+    if (filterStatus !== 'all' && e.status !== filterStatus) return false;
+    if (filterRegion !== 'all' && e.region !== filterRegion) return false;
+    return true;
+  }).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
-  useEffect(() => {
-    loadElections();
-  }, []);
+  const regions = Array.from(new Set(ELECTIONS.map(e => e.region)));
 
-  const filteredElections = elections.filter(e => {
-    if (filter === 'all') return true;
-    return e.status === filter;
-  });
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'ongoing': return 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300';
-      case 'upcoming': return 'bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300';
-      default: return 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300';
-    }
-  };
-
-  const getImportanceIcon = (importance: string) => {
-    switch (importance) {
-      case 'critical': return <AlertCircle className="w-4 h-4 text-red-600" />;
-      case 'high': return <AlertCircle className="w-4 h-4 text-orange-600" />;
-      default: return <AlertCircle className="w-4 h-4 text-blue-600" />;
-    }
-  };
+  const Chip = ({ label, active, onClick }: { label: string; active: boolean; onClick: () => void }) => (
+    <button onClick={onClick} className={`text-xs px-2.5 py-1 rounded border transition-colors capitalize ${active ? 'bg-stone-900 dark:bg-stone-100 text-white dark:text-stone-900 border-stone-900 dark:border-stone-100' : 'border-stone-200 dark:border-stone-700 text-stone-600 dark:text-stone-400 hover:border-stone-400'}`}>{label}</button>
+  );
 
   return (
-    <div className="h-full flex flex-col bg-white dark:bg-gray-900">
-      {/* Header */}
-      <div className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white p-4 md:p-6">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-          <div>
-            <h1 className="text-2xl md:text-3xl font-bold flex items-center gap-3">
-              <Vote className="w-6 h-6 md:w-8 md:h-8" />
-              Global Election Tracker
-            </h1>
-            <p className="text-purple-100 mt-2 text-sm md:text-base">Real-Time Election Results & Predictions Worldwide</p>
+    <div className="h-full flex bg-stone-50 dark:bg-stone-950 overflow-hidden">
+      {/* LIST */}
+      <div className={`flex flex-col border-r border-stone-200 dark:border-stone-800 ${selected ? 'hidden lg:flex lg:w-2/5' : 'w-full'}`}>
+        <div className="bg-white dark:bg-stone-900 border-b border-stone-200 dark:border-stone-800 px-5 py-4 flex-none">
+          <div className="flex items-center gap-3 mb-3">
+            <Vote className="w-5 h-5 text-stone-600 dark:text-stone-400" />
+            <h1 className="text-base font-bold text-stone-900 dark:text-white">Election Tracker</h1>
+            <span className="text-[10px] text-stone-400 border border-stone-200 dark:border-stone-700 px-2 py-0.5 rounded font-bold uppercase tracking-widest">{filtered.length}</span>
           </div>
-          <button
-            onClick={loadElections}
-            disabled={loading}
-            className="bg-white/20 hover:bg-white/30 px-4 py-2 rounded-lg flex items-center gap-2 transition-all disabled:opacity-50 self-start md:self-auto"
-          >
-            <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
-            <span className="text-sm">Refresh</span>
-          </button>
+          <div className="flex flex-wrap gap-1 mb-2">
+            {(['all', 'upcoming', 'ongoing', 'completed'] as const).map(s => <Chip key={s} label={s} active={filterStatus === s} onClick={() => setFilterStatus(s)} />)}
+          </div>
+          <div className="flex flex-wrap gap-1">
+            <Chip label="all regions" active={filterRegion === 'all'} onClick={() => setFilterRegion('all')} />
+            {regions.map(r => <Chip key={r} label={r} active={filterRegion === r} onClick={() => setFilterRegion(r)} />)}
+          </div>
         </div>
 
-        {/* Filters */}
-        <div className="mt-4 flex gap-2 flex-wrap">
-          {['all', 'upcoming', 'ongoing', 'completed'].map(f => (
-            <button
-              key={f}
-              onClick={() => setFilter(f)}
-              className={`px-3 py-1 rounded-full text-xs md:text-sm transition-all ${
-                filter === f
-                  ? 'bg-white text-purple-600 font-bold'
-                  : 'bg-white/20 hover:bg-white/30'
-              }`}
-            >
-              {f.charAt(0).toUpperCase() + f.slice(1)}
+        <div className="flex-1 overflow-y-auto divide-y divide-stone-100 dark:divide-stone-800/50">
+          {filtered.map(e => {
+            const st = STATUS_STYLE[e.status];
+            return (
+              <div key={e.id} onClick={() => setSelected(selected?.id === e.id ? null : e)}
+                className={`px-5 py-4 cursor-pointer transition-colors ${selected?.id === e.id ? 'bg-stone-100 dark:bg-stone-800' : 'hover:bg-stone-50 dark:hover:bg-stone-900/40'}`}>
+                <div className="flex items-start justify-between gap-2 mb-1.5">
+                  <div className="flex items-center gap-2">
+                    <div className={`w-1.5 h-1.5 rounded-full flex-none mt-1 ${st.dot}`} />
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-stone-400">{e.type}</span>
+                    {e.significance === 'major' && <span className="text-[10px] font-bold uppercase tracking-widest text-stone-500 border border-stone-200 dark:border-stone-700 px-1.5 py-0.5 rounded">Major</span>}
+                  </div>
+                  <span className={`text-[10px] font-bold uppercase tracking-wider ${st.label}`}>{e.status}</span>
+                </div>
+                <h3 className="text-sm font-semibold text-stone-900 dark:text-white mb-1">{e.country}</h3>
+                <div className="flex items-center gap-3 text-[10px] text-stone-400">
+                  <span className="flex items-center gap-1"><Calendar className="w-3 h-3" />{e.date}</span>
+                  <span className="flex items-center gap-1"><Globe className="w-3 h-3" />{e.region}</span>
+                  {e.turnout && <span>{e.turnout}% turnout</span>}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* DETAIL */}
+      {selected ? (
+        <div className="flex-1 overflow-y-auto bg-white dark:bg-stone-900">
+          <div className="flex items-center justify-between px-6 py-4 border-b border-stone-200 dark:border-stone-800">
+            <span className="text-xs font-bold uppercase tracking-widest text-stone-500">{selected.type} · {selected.region}</span>
+            <button onClick={() => setSelected(null)} className="text-stone-400 hover:text-stone-700 lg:hidden"><X className="w-4 h-4" /></button>
+          </div>
+
+          <div className="p-6 space-y-6">
+            <div>
+              <div className="flex items-center gap-2 mb-2">
+                <div className={`w-2 h-2 rounded-full ${STATUS_STYLE[selected.status].dot}`} />
+                <span className={`text-[10px] font-bold uppercase tracking-wider ${STATUS_STYLE[selected.status].label}`}>{selected.status}</span>
+                {selected.significance === 'major' && <span className="text-[10px] font-bold uppercase tracking-wider border border-stone-200 dark:border-stone-700 px-1.5 py-0.5 rounded text-stone-500">Major Election</span>}
+              </div>
+              <h2 className="text-2xl font-bold text-stone-900 dark:text-white mb-1">{selected.country}</h2>
+              <div className="flex items-center gap-3 text-sm text-stone-500">
+                <span className="flex items-center gap-1"><Calendar className="w-3.5 h-3.5" />{selected.date}</span>
+                {selected.turnout && <span className="flex items-center gap-1"><Users className="w-3.5 h-3.5" />{selected.turnout}% turnout</span>}
+                {selected.internationalObservers && <span className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400"><CheckCircle className="w-3.5 h-3.5" />Int'l Observers</span>}
+              </div>
+            </div>
+
+            <div className="border-t border-stone-100 dark:border-stone-800 pt-5">
+              <p className="text-sm text-stone-700 dark:text-stone-300 leading-relaxed">{selected.description}</p>
+            </div>
+
+            {/* Outcome */}
+            {selected.outcome && (
+              <div className="border border-stone-100 dark:border-stone-800 rounded-lg p-4">
+                <span className="text-[10px] font-bold uppercase tracking-widest text-stone-400 block mb-2">Outcome</span>
+                <p className="text-sm text-stone-700 dark:text-stone-300">{selected.outcome}</p>
+              </div>
+            )}
+
+            {/* Candidates/Polls */}
+            {selected.candidates && selected.candidates.length > 0 && (
+              <div>
+                <span className="text-[10px] font-bold uppercase tracking-widest text-stone-400 block mb-3">
+                  {selected.status === 'completed' ? 'Results' : 'Polling'}
+                </span>
+                <div className="space-y-3">
+                  {selected.candidates.sort((a, b) => ((b.result || b.polling || 0) - (a.result || a.polling || 0))).map((c, i) => {
+                    const val = c.result ?? c.polling ?? 0;
+                    const isWinner = c.won;
+                    return (
+                      <div key={i} className={`p-3 rounded-lg border ${isWinner ? 'border-stone-300 dark:border-stone-600 bg-stone-50 dark:bg-stone-800' : 'border-stone-100 dark:border-stone-800'}`}>
+                        <div className="flex items-center justify-between mb-1.5">
+                          <div className="flex items-center gap-2">
+                            {isWinner && <CheckCircle className="w-3.5 h-3.5 text-emerald-500 flex-none" />}
+                            <button onClick={() => onNavigate('Person', c.name)} className="text-sm font-semibold text-stone-900 dark:text-white hover:underline">{c.name}</button>
+                            <span className="text-xs text-stone-400">{c.party}</span>
+                          </div>
+                          <span className="text-sm font-bold text-stone-900 dark:text-white tabular-nums">{val}%</span>
+                        </div>
+                        <div className="w-full h-1.5 bg-stone-100 dark:bg-stone-700 rounded-full overflow-hidden">
+                          <div className={`h-full rounded-full transition-all duration-700 ${isWinner ? 'bg-stone-900 dark:bg-white' : 'bg-stone-400 dark:bg-stone-500'}`} style={{ width: `${val}%` }} />
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* Key Issues */}
+            <div>
+              <span className="text-[10px] font-bold uppercase tracking-widest text-stone-400 block mb-2">Key Issues</span>
+              <div className="flex flex-wrap gap-2">{selected.keyIssues.map(issue => (
+                <span key={issue} className="text-xs border border-stone-200 dark:border-stone-700 px-3 py-1.5 rounded text-stone-600 dark:text-stone-400">{issue}</span>
+              ))}</div>
+            </div>
+
+            <button onClick={() => onNavigate('Country', selected.country)} className="w-full py-2.5 border border-stone-200 dark:border-stone-700 rounded-lg text-sm font-bold text-stone-700 dark:text-stone-300 hover:border-stone-400 hover:text-stone-900 dark:hover:text-white transition-colors flex items-center justify-center gap-2">
+              <Globe className="w-4 h-4" />View {selected.country} Profile
             </button>
-          ))}
+          </div>
         </div>
-      </div>
-
-      {/* Content */}
-      <div className="flex-1 overflow-y-auto">
-        {loading ? (
-          <div className="flex items-center justify-center h-full">
-            <div className="text-center">
-              <div className="animate-spin w-12 h-12 border-4 border-purple-600 border-t-transparent rounded-full mx-auto mb-4"></div>
-              <p className="text-gray-600 dark:text-gray-400">Loading election data...</p>
-            </div>
+      ) : (
+        <div className="hidden lg:flex flex-1 items-center justify-center bg-stone-50 dark:bg-stone-950">
+          <div className="text-center text-stone-400">
+            <Vote className="w-12 h-12 opacity-20 mx-auto mb-3" />
+            <p className="text-sm">Select an election to view details</p>
           </div>
-        ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6 p-4 md:p-6">
-            {/* Elections List */}
-            <div className="space-y-4">
-              <h2 className="text-lg md:text-xl font-bold text-gray-800 dark:text-white">
-                Elections ({filteredElections.length})
-              </h2>
-              {filteredElections.map((election, idx) => (
-                <div
-                  key={idx}
-                  onClick={() => setSelectedElection(election)}
-                  className={`p-4 rounded-lg border-2 cursor-pointer transition-all hover:shadow-lg ${
-                    selectedElection?.country === election.country && selectedElection?.date === election.date
-                      ? 'border-purple-500 bg-purple-50 dark:bg-purple-900/20'
-                      : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800'
-                  }`}
-                >
-                  <div className="flex items-start justify-between mb-2">
-                    <div className="flex items-center gap-2">
-                      {getImportanceIcon(election.importance)}
-                      <span className={`text-xs font-medium px-2 py-1 rounded ${getStatusColor(election.status)}`}>
-                        {election.status}
-                      </span>
-                    </div>
-                    <MapPin className="w-4 h-4 text-gray-500" />
-                  </div>
-                  
-                  <h3 className="font-bold text-gray-800 dark:text-white mb-1">
-                    {election.country} {election.type}
-                  </h3>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">{election.description}</p>
-                  
-                  <div className="flex items-center gap-3 text-xs text-gray-600 dark:text-gray-400">
-                    <span className="flex items-center gap-1">
-                      <Calendar className="w-3 h-3" />
-                      {election.date}
-                    </span>
-                    {election.turnoutExpected && (
-                      <span className="flex items-center gap-1">
-                        <Users className="w-3 h-3" />
-                        {election.turnoutExpected}% turnout
-                      </span>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            {/* Election Detail */}
-            <div className="lg:sticky lg:top-6 h-fit">
-              {selectedElection ? (
-                <div className="bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
-                  {/* Header */}
-                  <div className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white p-4 md:p-6">
-                    <div className="flex items-center justify-between mb-2">
-                      <h2 className="text-xl md:text-2xl font-bold">{selectedElection.country}</h2>
-                      <span className={`px-3 py-1 rounded-full text-sm font-bold ${getStatusColor(selectedElection.status)} bg-white/20`}>
-                        {selectedElection.status}
-                      </span>
-                    </div>
-                    <p className="text-purple-100 capitalize">{selectedElection.type} Election</p>
-                    <p className="text-purple-200 text-sm mt-1">{selectedElection.date}</p>
-                  </div>
-
-                  <div className="p-4 md:p-6 space-y-4 max-h-[600px] overflow-y-auto">
-                    {/* Key Issues */}
-                    {selectedElection.keyIssues && (
-                      <div>
-                        <h3 className="font-bold text-gray-800 dark:text-white mb-2">Key Issues</h3>
-                        <div className="flex flex-wrap gap-2">
-                          {selectedElection.keyIssues.map((issue: string, i: number) => (
-                            <span key={i} className="px-3 py-1 bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300 rounded-full text-xs">
-                              {issue}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Candidates/Parties */}
-                    {selectedElection.candidates && (
-                      <div>
-                        <h3 className="font-bold text-gray-800 dark:text-white mb-3">Candidates/Parties</h3>
-                        <div className="space-y-3">
-                          {selectedElection.candidates.map((candidate: any, i: number) => (
-                            <div key={i} className="bg-white dark:bg-gray-700 p-3 rounded-lg">
-                              <div className="flex items-center justify-between mb-2">
-                                <div>
-                                  <h4 className="font-bold text-gray-800 dark:text-white">{candidate.name}</h4>
-                                  <p className="text-xs text-gray-600 dark:text-gray-400">{candidate.party}</p>
-                                </div>
-                                {candidate.support && (
-                                  <div className="text-right">
-                                    <p className="text-lg font-bold text-purple-600 dark:text-purple-400">{candidate.support}%</p>
-                                    <p className="text-xs text-gray-500">support</p>
-                                  </div>
-                                )}
-                              </div>
-                              {candidate.platform && (
-                                <p className="text-xs text-gray-700 dark:text-gray-300">{candidate.platform}</p>
-                              )}
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Analysis */}
-                    {selectedElection.analysis && (
-                      <div>
-                        <h3 className="font-bold text-gray-800 dark:text-white mb-2">AI Analysis</h3>
-                        <p className="text-sm text-gray-700 dark:text-gray-300">{selectedElection.analysis}</p>
-                      </div>
-                    )}
-
-                    {/* Predictions */}
-                    {selectedElection.predictions && selectedElection.status === 'upcoming' && (
-                      <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-700">
-                        <h3 className="font-bold text-blue-900 dark:text-blue-100 mb-2 flex items-center gap-2">
-                          <TrendingUp className="w-4 h-4" />
-                          Predictions
-                        </h3>
-                        <p className="text-sm text-gray-700 dark:text-gray-300">{selectedElection.predictions}</p>
-                      </div>
-                    )}
-
-                    {/* International Impact */}
-                    {selectedElection.internationalImpact && (
-                      <div>
-                        <h3 className="font-bold text-gray-800 dark:text-white mb-2">International Impact</h3>
-                        <p className="text-sm text-gray-700 dark:text-gray-300">{selectedElection.internationalImpact}</p>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              ) : (
-                <div className="bg-gray-100 dark:bg-gray-800 p-8 md:p-12 rounded-lg text-center h-full flex items-center justify-center">
-                  <div>
-                    <Vote className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                    <p className="text-gray-600 dark:text-gray-400">Select an election to see detailed information</p>
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 }

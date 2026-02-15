@@ -62,7 +62,7 @@ const GamesTab: React.FC = () => {
             <div className="flex-none p-6 md:p-8 bg-white dark:bg-stone-900 border-b border-stone-200 dark:border-stone-800 z-10">
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-6">
                     <div className="flex items-center gap-4">
-                        <div className="w-16 h-16 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl flex items-center justify-center text-white shadow-lg rotate-3">
+                        <div className="w-16 h-16 bg-white dark:bg-stone-900 rounded-2xl flex items-center justify-center text-white shadow-lg rotate-3">
                             <Gamepad2 className="w-8 h-8" />
                         </div>
                         <div>
@@ -115,7 +115,6 @@ const GamesTab: React.FC = () => {
                                     onClick={() => handleLaunch(game)}
                                     className="group relative h-64 rounded-2xl overflow-hidden cursor-pointer shadow-lg hover:shadow-2xl transition-all"
                                  >
-                                     <div className={`absolute inset-0 bg-gradient-to-br ${game.engine === 'POLIVERSE' ? 'from-indigo-600 to-blue-900' : game.engine === 'CRISIS' ? 'from-red-700 to-orange-900' : 'from-emerald-600 to-teal-900'}`}></div>
                                      <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/circuit-board.png')] opacity-20"></div>
                                      <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors"></div>
                                      

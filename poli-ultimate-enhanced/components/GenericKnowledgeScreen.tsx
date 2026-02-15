@@ -76,7 +76,7 @@ const GenericKnowledgeScreen: React.FC<GenericKnowledgeScreenProps> = ({ query, 
               
               {/* HERO */}
               <section className="text-center space-y-4">
-                   <div className="w-24 h-24 mx-auto bg-gradient-to-br from-stone-100 to-stone-200 dark:from-stone-800 dark:to-stone-700 rounded-full flex items-center justify-center mb-6 shadow-inner">
+                   <div className="w-24 h-24 mx-auto bg-white dark:bg-stone-900 dark:from-stone-800 dark:to-stone-700 rounded-full flex items-center justify-center mb-6 shadow-inner">
                        <Zap className="w-12 h-12 text-academic-gold" />
                    </div>
                    <h1 className="text-4xl md:text-6xl font-serif font-bold text-academic-text dark:text-stone-100 tracking-tight">{data.title}</h1>

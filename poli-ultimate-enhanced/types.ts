@@ -15,6 +15,9 @@ export interface SavedItem {
     title: string;
     subtitle?: string;
     dateAdded: string;
+    savedAt?: string;
+    entityId?: string;
+    entityName?: string;
 }
 
 // ... Enums ...
@@ -263,45 +266,40 @@ export interface UserProfile {
     username: string;
     email: string;
     displayName: string;
-    bio: string;
+    bio?: string;
     country: string;
     city?: string;
-    
-    title: string;
-    role?: string; 
-    institution?: string; 
+    title?: string;
+    role?: string;
+    institution?: string;
     avatarUrl?: string;
+    photoURL?: string;
     bannerUrl?: string;
-    
     socials?: SocialLinks;
     academic?: AcademicCredentials;
-    
-    // CV Sections
     educationHistory?: EducationEntry[];
     workHistory?: ExperienceEntry[];
     publications?: PublicationEntry[];
-    
-    joinedDate: string;
-    lastActive: string;
-    
-    level: number;
-    xp: number;
-    coins: number;
-    
-    stats: DetailedStats;
-    preferences: UserPreferences;
-    
-    achievements: any[];
-    savedItems: SavedItem[];
-    
+    joinedDate?: string;
+    joinDate?: string;
+    lastActive?: string;
+    language?: string;
+    theme?: string;
+    level?: number;
+    xp?: number;
+    coins?: number;
+    stats?: DetailedStats;
+    preferences?: UserPreferences;
+    achievements?: any[];
+    savedItems?: SavedItem[];
     website?: string;
     twitter?: string;
     linkedin?: string;
     github?: string;
     specializations?: string[];
-    totalGamesPlayed?: number; 
-    nextLevelXp?: number; 
-    streak?: number; 
+    totalGamesPlayed?: number;
+    nextLevelXp?: number;
+    streak?: number;
     researchInterests?: string[];
     quests?: any[];
     mastery?: Record<string, any>;

@@ -59,7 +59,7 @@ const SimTab: React.FC = () => {
           <div className="h-full w-full bg-academic-bg dark:bg-stone-950 overflow-y-auto p-6 flex flex-col justify-center animate-in zoom-in-95">
               <div className="max-w-md mx-auto w-full">
                   <div className="text-center mb-10">
-                      <div className="w-24 h-24 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-3xl mx-auto flex items-center justify-center text-white mb-6 shadow-2xl rotate-3">
+                      <div className="w-24 h-24 bg-white dark:bg-stone-900 rounded-3xl mx-auto flex items-center justify-center text-white mb-6 shadow-2xl rotate-3">
                           <Crown className="w-12 h-12" />
                       </div>
                       <h1 className="text-4xl font-serif font-bold text-academic-text dark:text-white mb-2">Genesis Protocol</h1>

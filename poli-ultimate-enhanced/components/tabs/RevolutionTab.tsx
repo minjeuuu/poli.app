@@ -27,7 +27,7 @@ export const RevolutionTab: React.FC = () => {
 
   return (
     <div className="max-w-7xl mx-auto p-4 space-y-6">
-      <div className="bg-gradient-to-r from-red-600 to-orange-600 text-white p-6 rounded-lg">
+      <div className="bg-white dark:bg-stone-900 text-white p-6 rounded-lg">
         <div className="flex items-center gap-3 mb-2">
           <Flame className="w-8 h-8" />
           <h1 className="text-3xl font-bold">Revolutions & Social Movements</h1>

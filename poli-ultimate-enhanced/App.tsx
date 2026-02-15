@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, Suspense } from 'react';
+import React, { useState, useEffect, useMemo, useCallback, Suspense } from 'react';
 import { MainTab, DailyContext, SavedItem, UserProfile, ThemeScope, SpecialTheme } from './types';
 import { fetchDailyContext } from './services/homeService';
 import { FALLBACK_DAILY_CONTEXT } from './data/homeData';
@@ -12,6 +12,7 @@ import LaunchScreen from './components/LaunchScreen';
 import IntroScreen from './components/IntroScreen';
 import Layout from './components/Layout';
 import LoadingScreen from './components/LoadingScreen';
+import CommandPalette from './components/CommandPalette';
 
 // Lazy load tabs for better performance
 const HomeTab = React.lazy(() => import('./components/tabs/HomeTab'));
@@ -54,12 +55,12 @@ const GenericKnowledgeScreen = React.lazy(() => import('./components/GenericKnow
 type OverlayItem = { type: string; payload: any; id: string };
 
 export default function App() {
-  // Lifecycle State - FIXED: Initialize with proper sequence
+  // Lifecycle State
   const [initPhase, setInitPhase] = useState<'launching' | 'auth' | 'intro' | 'ready'>('launching');
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [authUser, setAuthUser] = useState<AuthUser | null>(null);
-  
-  // App State
+
+  // App State — use Layout's canonical tab IDs (read, messages, forecast, election)
   const [activeTab, setActiveTab] = useState<MainTab>('home');
   const [currentDate, setCurrentDate] = useState(new Date());
   const [dailyData, setDailyData] = useState<DailyContext>(FALLBACK_DAILY_CONTEXT);
@@ -67,277 +68,372 @@ export default function App() {
   const [savedItems, setSavedItems] = useState<SavedItem[]>([]);
   const [appLang, setAppLang] = useState('English');
   const [user, setUser] = useState<UserProfile | null>(null);
-  
-  // THEME STATE
+
+  // Theme State
   const [themeMode, setThemeMode] = useState<SpecialTheme>('Default');
   const [themeScope, setThemeScope] = useState<ThemeScope>('None');
   const [myCountry, setMyCountry] = useState<string>('Global Citizen');
-  
+
   // Global Navigation Stack
   const [overlayStack, setOverlayStack] = useState<OverlayItem[]>([]);
+  const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
 
-  // FIXED: Proper initialization sequence with diagnostics
+  // Keyboard shortcuts
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        setCommandPaletteOpen(prev => !prev);
+      }
+    };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, []);
+
+  // Initialization
   useEffect(() => {
     const initializeApp = async () => {
       try {
-        console.log('🚀 Initializing POLI Enhanced...');
-        
-        // Show launch screen for minimum 1.5 seconds
+        console.log('Initializing POLI Enhanced...');
         await new Promise(resolve => setTimeout(resolve, 1500));
-        
-        // Run system diagnostics
-        console.log('🔍 Running system diagnostics...');
-        
-        // Initialize database
-        try {
-          await db.init();
-          console.log('✅ Database initialized');
-        } catch (dbError) {
-          console.error('⚠️ Database initialization failed:', dbError);
-          // Continue anyway - app can work without database
-        }
-        
-        // Load saved items
+
+        try { await db.init(); } catch (e) { console.warn('DB init failed:', e); }
+
         try {
           const saved = await db.execute("SELECT * FROM saved_items");
-          if (saved.success) {
-            setSavedItems(saved.rows);
-            console.log(`✅ Loaded ${saved.rows.length} saved items`);
-          }
-        } catch (savedError) {
-          console.warn('⚠️ Could not load saved items:', savedError);
-          // Continue with empty saved items
-        }
-        
-        // Check authentication status
+          if (saved?.success && Array.isArray(saved.rows)) setSavedItems(saved.rows);
+        } catch (e) { console.warn('Could not load saved items:', e); }
+
         const currentUser = getCurrentUser();
         if (currentUser) {
-          console.log('✅ User authenticated:', currentUser.displayName);
           setAuthUser(currentUser);
           setIsAuthenticated(true);
-          setInitPhase('intro'); // Skip auth, go to intro
+          setInitPhase('intro');
         } else {
-          console.log('ℹ️ No authenticated user, showing auth screen');
           setInitPhase('auth');
         }
-        
       } catch (error) {
-        console.error('❌ Initialization error:', error);
-        // Show error but still try to proceed
-        alert('Initialization error: ' + (error instanceof Error ? error.message : 'Unknown error'));
-        // Still proceed to auth screen even on error
+        console.error('Init error:', error);
         setInitPhase('auth');
       }
     };
-
     initializeApp();
   }, []);
 
-  // Listen for auth state changes
+  // Auth listener
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged((user) => {
-      console.log('🔐 Auth state changed:', user?.displayName || 'null');
-      setAuthUser(user);
-      setIsAuthenticated(!!user);
-      
-      // Update user profile state
-      if (user) {
+    const unsubscribe = onAuthStateChanged((u) => {
+      setAuthUser(u);
+      setIsAuthenticated(!!u);
+      if (u) {
         setUser({
-          id: user.uid,
-          username: user.displayName || 'Scholar',
-          email: user.email || '',
-          displayName: user.displayName || 'Scholar',
-          photoURL: user.photoURL,
-          joinDate: user.createdAt,
-          country: user.preferences?.country || 'Global Citizen',
-          language: user.preferences?.language || 'English',
-          theme: user.preferences?.theme || 'Default'
+          id: u.uid,
+          username: u.displayName || 'Scholar',
+          email: u.email || '',
+          displayName: u.displayName || 'Scholar',
+          photoURL: u.photoURL ?? undefined,
+          joinDate: u.createdAt,
+          country: u.preferences?.country || 'Global Citizen',
+          language: u.preferences?.language || 'English',
+          theme: u.preferences?.theme || 'Default',
         });
-        
-        // Set preferences
-        setMyCountry(user.preferences?.country || 'Global Citizen');
-        setAppLang(user.preferences?.language || 'English');
+        setMyCountry(u.preferences?.country || 'Global Citizen');
+        setAppLang(u.preferences?.language || 'English');
       }
     });
-
     return unsubscribe;
   }, []);
 
-  // Load daily context
+  // Load daily context — passes currentDate as required by homeService
   useEffect(() => {
-    const loadDailyData = async () => {
-      if (!isAuthenticated) return;
-      
+    if (!isAuthenticated) return;
+    let mounted = true;
+    const load = async () => {
       setIsDailyLoading(true);
       try {
-        const data = await fetchDailyContext();
-        setDailyData(data);
-        console.log('✅ Daily context loaded');
-      } catch (error) {
-        console.error('⚠️ Failed to load daily context, using fallback:', error);
-        setDailyData(FALLBACK_DAILY_CONTEXT);
+        const data = await fetchDailyContext(currentDate);
+        if (mounted) setDailyData(data);
+      } catch (err) {
+        console.warn('Daily context failed, using fallback:', err);
+        if (mounted) setDailyData(FALLBACK_DAILY_CONTEXT);
       } finally {
-        setIsDailyLoading(false);
+        if (mounted) setIsDailyLoading(false);
       }
     };
+    load();
+    return () => { mounted = false; };
+  }, [isAuthenticated, currentDate]);
 
-    loadDailyData();
-  }, [isAuthenticated]);
-
-  // Calculate dynamic theme
+  // Dynamic theme
   const currentTheme = useMemo<SpecialTheme>(() => {
     const month = currentDate.getMonth();
     const day = currentDate.getDate();
-
-    // Holiday Overrides
     if (month === 11 && day >= 20 && day <= 26) return 'Christmas';
     if (month === 0 && day === 1) return 'NewYear';
-    
-    // Scope-Based Overrides
-    if (themeScope === 'CountryPride' && myCountry !== 'Global Citizen') {
-      return myCountry as SpecialTheme;
-    }
-    
-    // User's manual selection
     return themeMode;
-  }, [currentDate, themeMode, themeScope, myCountry]);
+  }, [currentDate, themeMode]);
 
   // Handlers
-  const handleLogin = (user: AuthUser) => {
-    console.log('👤 User logged in:', user.displayName);
-    setAuthUser(user);
+  const handleLogin = useCallback((u: AuthUser) => {
+    setAuthUser(u);
     setIsAuthenticated(true);
     setInitPhase('intro');
-  };
+  }, []);
 
-  const handleGuest = () => {
-    console.log('👤 Guest mode activated');
-    // Guest users skip intro and go directly to app
+  const handleGuest = useCallback(() => {
     setIsAuthenticated(true);
     setInitPhase('ready');
-  };
+  }, []);
 
-  const handleSkipIntro = () => {
-    console.log('⏭️ Intro skipped');
-    setInitPhase('ready');
-  };
+  const handleSkipIntro = useCallback(() => setInitPhase('ready'), []);
 
-  const openOverlay = (type: string, payload: any) => {
-    const newItem = { type, payload, id: Date.now().toString() };
-    setOverlayStack(prev => [...prev, newItem]);
-  };
+  const openOverlay = useCallback((type: string, payload: any) => {
+    setOverlayStack(prev => [...prev, { type, payload, id: Date.now().toString() }]);
+  }, []);
 
-  const closeOverlay = () => {
+  const closeOverlay = useCallback(() => {
     setOverlayStack(prev => prev.slice(0, -1));
-  };
+  }, []);
 
-  const handleSaveItem = async (item: Omit<SavedItem, 'id' | 'savedAt'>) => {
-    const newItem: SavedItem = {
-      ...item,
-      id: Date.now().toString(),
-      savedAt: new Date().toISOString()
-    };
-
-    const result = await db.execute(
-      "INSERT INTO saved_items (id, type, entityId, entityName, savedAt) VALUES (?, ?, ?, ?, ?)",
-      [newItem.id, newItem.type, newItem.entityId, newItem.entityName, newItem.savedAt]
-    );
-
-    if (result.success) {
+  const handleSaveItem = useCallback(async (item: Omit<SavedItem, 'id' | 'dateAdded'>) => {
+    const now = new Date().toISOString();
+    const newItem: SavedItem = { ...item, id: Date.now().toString(), dateAdded: now, savedAt: now };
+    try {
+      const result = await db.execute(
+        "INSERT INTO saved_items (id, type, title, subtitle, dateAdded) VALUES (?, ?, ?, ?, ?)",
+        [newItem.id, newItem.type, newItem.title, newItem.subtitle ?? '', now]
+      );
+      if (result?.success) setSavedItems(prev => [...prev, newItem]);
+    } catch (err) {
       setSavedItems(prev => [...prev, newItem]);
     }
-  };
+  }, []);
 
-  const handleDeleteSaved = async (id: string) => {
-    const result = await db.execute("DELETE FROM saved_items WHERE id = ?", [id]);
-    if (result.success) {
-      setSavedItems(prev => prev.filter(item => item.id !== id));
+  const handleDeleteSaved = useCallback(async (id: string) => {
+    try { await db.execute("DELETE FROM saved_items WHERE id = ?", [id]); } catch (e) {}
+    setSavedItems(prev => prev.filter(i => i.id !== id));
+  }, []);
+
+  const handleToggleSave = useCallback((item: any) => {
+    const title = item?.title || item?.name || '';
+    const exists = savedItems.some(s => s.title === title);
+    if (exists) {
+      const found = savedItems.find(s => s.title === title);
+      if (found) handleDeleteSaved(found.id);
+    } else {
+      handleSaveItem({ type: item?.type || 'Item', title, subtitle: item?.subtitle || item?.description || '' });
+    }
+  }, [savedItems, handleSaveItem, handleDeleteSaved]);
+
+  const isSaved = useCallback((title: string, _type?: string) =>
+    savedItems.some(s => s.title === title), [savedItems]);
+
+  const handleAddToCompare = useCallback((_name: string, _type: string) => {}, []);
+
+  const updateThemeScope = useCallback((scope: ThemeScope, _country?: string) => {
+    setThemeScope(scope);
+  }, []);
+
+  const setGlobalTheme = useCallback((theme: SpecialTheme) => {
+    setThemeMode(theme);
+    setThemeScope('None');
+  }, []);
+
+  // Prop bundles
+  const navProps = { onNavigate: openOverlay };
+  const richProps = { onNavigate: openOverlay, onAddToCompare: handleAddToCompare, onToggleSave: handleToggleSave, isSaved };
+
+  // Tab renderer
+  const renderActiveTab = () => {
+    switch (activeTab) {
+      case 'home':
+        return (
+          <HomeTab
+            data={dailyData}
+            isLoading={isDailyLoading}
+            currentDate={currentDate}
+            onDateChange={setCurrentDate}
+            onNavigate={openOverlay}
+            savedItems={savedItems}
+            onDeleteSaved={handleDeleteSaved}
+          />
+        );
+      case 'explore':      return <ExploreTab {...richProps} />;
+      case 'countries':    return <CountriesTab {...richProps} />;
+      case 'persons':      return <PersonsTab {...richProps} />;
+      case 'theory':       return <TheoryTab {...richProps} />;
+      case 'read':         return <LibraryTab {...richProps} />;
+      case 'almanac':      return <AlmanacTab {...navProps} />;
+      case 'comparative':  return <ComparativeTab {...richProps} />;
+      case 'sim':          return <SimTab />;
+      case 'games':        return <GamesTab />;
+      case 'learn':        return <LearnTab {...navProps} />;
+      case 'rates':        return <RatesTab />;
+      case 'social':       return <SocialTab {...navProps} />;
+      case 'messages':     return <MessageTab {...navProps} />;
+      case 'translate':    return <TranslateTab />;
+      case 'news':         return <NewsHubTab {...navProps} />;
+      case 'forecast':     return <ForecastingTab {...navProps} />;
+      case 'debate':       return <DebateArenaTab {...navProps} />;
+      case 'research':     return <ResearchTab {...navProps} />;
+      case 'crisis':       return <CrisisTrackerTab {...navProps} />;
+      case 'policy':       return <PolicyLabTab {...navProps} />;
+      case 'election':     return <ElectionTrackerTab {...navProps} />;
+      case 'intel':        return <IntelBriefTab {...navProps} />;
+      case 'profile':
+        return (
+          <ProfileTab
+            onNavigate={openOverlay}
+            onAddToCompare={handleAddToCompare}
+            onToggleSave={handleToggleSave}
+            isSaved={isSaved}
+            appLang={appLang}
+            setAppLang={setAppLang}
+            savedItems={savedItems}
+            onDeleteSaved={handleDeleteSaved}
+            updateThemeScope={updateThemeScope}
+            setGlobalTheme={setGlobalTheme}
+            currentTheme={currentTheme}
+          />
+        );
+      default:
+        return (
+          <HomeTab
+            data={dailyData}
+            isLoading={isDailyLoading}
+            currentDate={currentDate}
+            onDateChange={setCurrentDate}
+            onNavigate={openOverlay}
+            savedItems={savedItems}
+            onDeleteSaved={handleDeleteSaved}
+          />
+        );
     }
   };
 
-  // Render current tab
-  const renderActiveTab = () => {
-    const tabProps = {
-      openDetail: openOverlay,
-      onSave: handleSaveItem,
-      currentTheme,
-      lang: appLang
-    };
-
-    const tabMap: Record<MainTab, React.ReactNode> = {
-      home: <HomeTab {...tabProps} dailyData={dailyData} loading={isDailyLoading} />,
-      social: <SocialTab {...tabProps} />,
-      explore: <ExploreTab {...tabProps} />,
-      countries: <CountriesTab {...tabProps} />,
-      translate: <TranslateTab {...tabProps} />,
-      comparative: <ComparativeTab {...tabProps} />,
-      theory: <TheoryTab {...tabProps} />,
-      persons: <PersonsTab {...tabProps} />,
-      learn: <LearnTab {...tabProps} />,
-      sim: <SimTab {...tabProps} />,
-      games: <GamesTab {...tabProps} />,
-      rates: <RatesTab {...tabProps} />,
-      profile: <ProfileTab {...tabProps} user={user} savedItems={savedItems} onDeleteSaved={handleDeleteSaved} />,
-      library: <LibraryTab {...tabProps} />,
-      message: <MessageTab {...tabProps} />,
-      almanac: <AlmanacTab {...tabProps} />,
-      news: <NewsHubTab {...tabProps} />,
-      forecasting: <ForecastingTab {...tabProps} />,
-      debate: <DebateArenaTab {...tabProps} />,
-      research: <ResearchTab {...tabProps} />,
-      crisis: <CrisisTrackerTab {...tabProps} />,
-      policy: <PolicyLabTab {...tabProps} />,
-      elections: <ElectionTrackerTab {...tabProps} />,
-      intel: <IntelBriefTab {...tabProps} />
-    };
-
-    return tabMap[activeTab] || tabMap.home;
-  };
-
-  // Render overlay
+  // Overlay renderer — uses correct prop names per component interface
   const renderOverlay = () => {
     if (overlayStack.length === 0) return null;
-
     const current = overlayStack[overlayStack.length - 1];
-    const detailProps = {
-      onClose: closeOverlay,
-      onNavigate: openOverlay,
-      onSave: handleSaveItem,
-      theme: currentTheme
-    };
+    const payload = current.payload;
+    const isPayloadSaved = isSaved(
+      typeof payload === 'string' ? payload : (payload?.name || payload?.title || ''),
+      current.type
+    );
+    const togglePayloadSave = () => handleToggleSave(
+      typeof payload === 'string'
+        ? { type: current.type, title: payload }
+        : payload
+    );
 
-    const overlayMap: Record<string, React.ReactNode> = {
-      country: <CountryDetailScreen {...detailProps} countryId={current.payload} />,
-      person: <PersonDetailScreen {...detailProps} personId={current.payload} />,
-      event: <EventDetailScreen {...detailProps} eventId={current.payload} />,
-      ideology: <IdeologyDetailScreen {...detailProps} ideologyId={current.payload} />,
-      org: <OrgDetailScreen {...detailProps} orgId={current.payload} />,
-      party: <PartyDetailScreen {...detailProps} partyId={current.payload} />,
-      reader: <ReaderView {...detailProps} content={current.payload} />,
-      concept: <ConceptDetailModal {...detailProps} concept={current.payload} />,
-      discipline: <DisciplineDetailScreen {...detailProps} disciplineId={current.payload} />,
-      knowledge: <GenericKnowledgeScreen {...detailProps} topic={current.payload} />
-    };
-
-    return overlayMap[current.type] || null;
+    switch (current.type?.toLowerCase()) {
+      case 'country':
+        return (
+          <CountryDetailScreen
+            countryName={typeof payload === 'string' ? payload : payload?.name || payload?.title || ''}
+            onClose={closeOverlay}
+            isSaved={isPayloadSaved}
+            onToggleSave={togglePayloadSave}
+            onNavigate={openOverlay}
+            onAddToCompare={handleAddToCompare}
+          />
+        );
+      case 'person':
+        return (
+          <PersonDetailScreen
+            personName={typeof payload === 'string' ? payload : payload?.name || payload?.title || ''}
+            onClose={closeOverlay}
+            isSaved={isPayloadSaved}
+            onToggleSave={togglePayloadSave}
+            onNavigate={openOverlay}
+          />
+        );
+      case 'event':
+        return (
+          <EventDetailScreen
+            eventName={typeof payload === 'string' ? payload : payload?.title || payload?.event || ''}
+            onClose={closeOverlay}
+            isSaved={isPayloadSaved}
+            onToggleSave={togglePayloadSave}
+            onNavigate={openOverlay}
+          />
+        );
+      case 'ideology':
+        return (
+          <IdeologyDetailScreen
+            ideologyName={typeof payload === 'string' ? payload : payload?.name || payload?.title || ''}
+            onClose={closeOverlay}
+            isSaved={isPayloadSaved}
+            onToggleSave={togglePayloadSave}
+            onNavigate={openOverlay}
+          />
+        );
+      case 'org':
+        return (
+          <OrgDetailScreen
+            orgName={typeof payload === 'string' ? payload : payload?.name || payload?.title || ''}
+            onClose={closeOverlay}
+            isSaved={isPayloadSaved}
+            onToggleSave={togglePayloadSave}
+            onNavigate={openOverlay}
+            onAddToCompare={handleAddToCompare}
+          />
+        );
+      case 'party':
+        return (
+          <PartyDetailScreen
+            partyName={typeof payload === 'string' ? payload : payload?.name || payload?.title || ''}
+            country={typeof payload === 'object' ? payload?.country || '' : ''}
+            onClose={closeOverlay}
+          />
+        );
+      case 'reader':
+        return (
+          <ReaderView
+            title={typeof payload === 'string' ? payload : payload?.title || ''}
+            author={typeof payload === 'object' ? payload?.author || '' : ''}
+            onClose={closeOverlay}
+            onNavigate={openOverlay}
+            type={typeof payload === 'object' ? payload?.type : undefined}
+          />
+        );
+      case 'concept':
+        return (
+          <ConceptDetailModal
+            term={typeof payload === 'string' ? payload : payload?.term || payload?.title || ''}
+            context={typeof payload === 'object' ? payload?.context || payload?.description || '' : ''}
+            onClose={closeOverlay}
+          />
+        );
+      case 'discipline':
+        return (
+          <DisciplineDetailScreen
+            disciplineName={typeof payload === 'string' ? payload : payload?.name || payload?.title || ''}
+            iconName={typeof payload === 'object' ? payload?.iconName : undefined}
+            onBack={closeOverlay}
+            onNavigate={(name, iconName) => openOverlay('discipline', { name, iconName })}
+            isSaved={isPayloadSaved}
+            onToggleSave={togglePayloadSave}
+          />
+        );
+      case 'knowledge':
+        return (
+          <GenericKnowledgeScreen
+            query={typeof payload === 'string' ? payload : payload?.query || payload?.title || ''}
+            onClose={closeOverlay}
+            onNavigate={openOverlay}
+          />
+        );
+      default:
+        return null;
+    }
   };
 
-  // FIXED: Render based on initialization phase
-  if (initPhase === 'launching') {
-    return <LaunchScreen />;
-  }
+  // Phase guards
+  if (initPhase === 'launching') return <LaunchScreen />;
+  if (initPhase === 'auth')      return <AuthScreen onLogin={handleLogin} onGuest={handleGuest} />;
+  if (initPhase === 'intro')     return <IntroScreen onContinue={handleSkipIntro} />;
 
-  if (initPhase === 'auth') {
-    return <AuthScreen onLogin={handleLogin} onGuest={handleGuest} />;
-  }
-
-  if (initPhase === 'intro') {
-    return <IntroScreen onContinue={handleSkipIntro} />;
-  }
-
-  // FIXED: Main app with better error handling
-  console.log('🎨 Rendering main app, phase:', initPhase, 'authenticated:', isAuthenticated);
-  
   return (
     <ErrorBoundary>
       <div className="h-screen w-screen overflow-hidden bg-stone-50 dark:bg-stone-950" data-theme={currentTheme}>
@@ -349,33 +445,30 @@ export default function App() {
               user={user}
               theme={currentTheme}
               themeMode={currentTheme}
-              onThemeChange={(theme) => {
-                setThemeMode(theme);
-                setThemeScope('None');
-              }}
+              onThemeChange={setGlobalTheme}
             >
               {renderActiveTab()}
             </Layout>
           ) : (
-            <div className="h-screen w-screen flex items-center justify-center bg-stone-50 dark:bg-stone-950">
+            <div className="h-screen w-screen flex items-center justify-center">
               <div className="text-center">
-                <h1 className="text-2xl font-bold text-stone-900 dark:text-stone-100 mb-4">
-                  Authentication Required
-                </h1>
-                <p className="text-stone-600 dark:text-stone-400">
-                  Please log in to continue
-                </p>
-                <button 
+                <h1 className="text-2xl font-bold mb-4">Authentication Required</h1>
+                <button
                   onClick={() => setInitPhase('auth')}
-                  className="mt-4 px-6 py-2 bg-academic-accent text-white rounded-lg"
+                  className="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
                 >
                   Go to Login
                 </button>
               </div>
             </div>
           )}
-
           {renderOverlay()}
+          <CommandPalette
+            isOpen={commandPaletteOpen}
+            onClose={() => setCommandPaletteOpen(false)}
+            onNavigate={openOverlay}
+            onTabChange={(tab) => { setActiveTab(tab); setCommandPaletteOpen(false); }}
+          />
         </Suspense>
       </div>
     </ErrorBoundary>

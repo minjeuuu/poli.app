@@ -54,7 +54,7 @@ export const ProfileStats: React.FC<ProfileStatsProps> = ({ stats }) => {
                 </div>
                 <div className="w-full h-4 bg-stone-200 dark:bg-stone-800 rounded-full overflow-hidden">
                     <div 
-                        className="h-full bg-gradient-to-r from-academic-gold to-orange-500 transition-all duration-1000" 
+                        className="h-full bg-stone-100 dark:bg-stone-800 transition-all duration-1000" 
                         style={{ width: `${((stats.totalXp % stats.nextLevelThreshold) / stats.nextLevelThreshold) * 100}%` }}
                     ></div>
                 </div>

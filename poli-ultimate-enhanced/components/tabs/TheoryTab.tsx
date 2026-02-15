@@ -264,7 +264,7 @@ const TheoryTab: React.FC<TheoryTabProps> = ({ onNavigate, onAddToCompare, onTog
     <div className="h-full flex flex-col bg-academic-bg dark:bg-stone-950 relative pb-24 overflow-y-auto transition-colors">
         
         {/* HERO HEADER */}
-        <div className="p-10 bg-gradient-to-b from-white to-academic-bg dark:from-stone-900 dark:to-stone-950 border-b border-academic-line dark:border-stone-800 transition-colors">
+        <div className="p-10 bg-white dark:bg-stone-900 dark:from-stone-900 dark:to-stone-950 border-b border-academic-line dark:border-stone-800 transition-colors">
             <div className="max-w-5xl mx-auto">
                 <div className="flex items-center gap-3 mb-6 text-academic-gold">
                     <Hexagon className="w-10 h-10 fill-academic-gold/10" />
@@ -287,7 +287,7 @@ const TheoryTab: React.FC<TheoryTabProps> = ({ onNavigate, onAddToCompare, onTog
                         className="group bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 p-8 cursor-pointer hover:shadow-2xl hover:border-academic-accent/30 dark:hover:border-indigo-500/30 transition-all relative overflow-hidden rounded-2xl active:scale-[0.99]"
                     >
                         {/* Decorative Background */}
-                        <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-bl from-stone-50 to-transparent dark:from-stone-800/50 dark:to-transparent rounded-bl-full -mr-20 -mt-20 z-0 group-hover:scale-110 transition-transform duration-700"></div>
+                        <div className="absolute top-0 right-0 w-64 h-64 bg-white dark:bg-stone-900 dark:from-stone-800/50 dark:to-transparent rounded-bl-full -mr-20 -mt-20 z-0 group-hover:scale-110 transition-transform duration-700"></div>
                         
                         <div className="relative z-10 flex flex-col h-full">
                             <div className="flex items-center justify-between mb-6">

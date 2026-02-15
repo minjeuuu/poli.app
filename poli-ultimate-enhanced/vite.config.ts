@@ -12,13 +12,10 @@ export default defineConfig({
     sourcemap: false,
     chunkSizeWarningLimit: 1000,
     rollupOptions: {
-      external: ["claude-sonnet-4-20250514"],
       output: {
         manualChunks: {
           vendor: ['react', 'react-dom'],
           icons: ['lucide-react'],
-          charts: ['recharts'],
-          utils: ['date-fns', 'immer']
         }
       }
     }

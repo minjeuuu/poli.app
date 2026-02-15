@@ -88,7 +88,7 @@ const AuthScreen: React.FC<AuthScreenProps> = ({ onLogin, onGuest }) => {
 
            <div className="bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-2xl shadow-xl overflow-hidden relative">
                {/* Decorative Gradient */}
-               <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-academic-accent via-academic-gold to-academic-accent"></div>
+               <div className="absolute top-0 left-0 w-full h-1 bg-white dark:bg-stone-900
 
                <div className="p-8">
                    <div className="flex gap-4 mb-8 bg-stone-100 dark:bg-stone-800 p-1 rounded-xl">

@@ -1,3 +1,3 @@
-export const translateText = async (text: string, from: string, to: string) => {
+export const translateText = async (text: string, to: string, from: string = 'auto') => {
   // implementation...
 };

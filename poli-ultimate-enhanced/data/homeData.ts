@@ -7,7 +7,7 @@ const HISTORICAL_EVENTS_ARCHIVE: DailyHistoryEvent[] = [
 ];
 
 export const FALLBACK_DAILY_CONTEXT: DailyContext = {
-    date: new Date().toLocaleDateString(),
+    date: new Date().toISOString().split('T')[0],
     quote: { text: "Man is by nature a political animal.", author: "Aristotle", year: "4th Century BCE", region: "Greece" },
     news: [],
     highlightedPerson: { category: 'Thinker', title: 'Plato', subtitle: 'Philosopher', meta: 'Greece' },

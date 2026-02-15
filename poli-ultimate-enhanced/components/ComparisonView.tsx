@@ -108,7 +108,7 @@ const ComparisonView: React.FC<ComparisonViewProps> = ({ item1, item2, onClose, 
       <div className="space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-20">
           {/* SYNTHESIS */}
           <div className="bg-white dark:bg-stone-900 p-8 md:p-10 rounded-2xl shadow-sm border border-stone-200 dark:border-stone-800 relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-bl from-academic-gold/10 to-transparent rounded-bl-full -mr-20 -mt-20"></div>
+              <div className="absolute top-0 right-0 w-64 h-64 bg-white dark:bg-stone-900 rounded-bl-full -mr-20 -mt-20"></div>
               <h3 className="text-xs font-bold uppercase tracking-[0.2em] text-academic-gold mb-6 flex items-center gap-2 relative z-10">
                   <Brain className="w-4 h-4" /> Executive Synthesis
               </h3>
@@ -310,7 +310,7 @@ const ComparisonView: React.FC<ComparisonViewProps> = ({ item1, item2, onClose, 
                         </h1>
                     </div>
                     
-                    <div className="flex-shrink-0 w-16 h-16 rounded-full bg-gradient-to-br from-academic-gold to-yellow-600 text-white flex items-center justify-center font-bold font-serif text-xl shadow-2xl z-10 ring-8 ring-stone-50 dark:ring-stone-900">VS</div>
+                    <div className="flex-shrink-0 w-16 h-16 rounded-full bg-white dark:bg-stone-900 text-white flex items-center justify-center font-bold font-serif text-xl shadow-2xl z-10 ring-8 ring-stone-50 dark:ring-stone-900">VS</div>
                     
                     <div 
                         onClick={() => handleEntityClick(item2.name, item2.type)}

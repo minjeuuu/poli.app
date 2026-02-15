@@ -132,7 +132,7 @@ const RatesTab: React.FC = () => {
             {/* Top Row: Title & Update */}
             <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-academic-gold to-orange-500 flex items-center justify-center text-white shadow-lg">
+                    <div className="w-12 h-12 rounded-2xl bg-white dark:bg-stone-900 flex items-center justify-center text-white shadow-lg">
                         <Coins className="w-6 h-6" />
                     </div>
                     <div>
@@ -244,7 +244,7 @@ const RatesTab: React.FC = () => {
                             </div>
 
                             {/* Hover Effect Background */}
-                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-transparent to-stone-50/50 dark:to-stone-800/50 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
+                            <div className="absolute inset-0 bg-white dark:bg-stone-900/50 dark:to-stone-800/50 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
                         </button>
                     ))}
                 </div>
@@ -338,7 +338,7 @@ const RatesTab: React.FC = () => {
                 onClick={(e) => e.stopPropagation()}
             >
                 {/* Detail Header */}
-                <div className="absolute top-0 left-0 right-0 p-6 z-10 flex justify-between items-start bg-gradient-to-b from-black/60 to-transparent">
+                <div className="absolute top-0 left-0 right-0 p-6 z-10 flex justify-between items-start bg-black/50">
                     <button onClick={() => setSelectedCurrency(null)} className="p-2 bg-white/20 backdrop-blur-md rounded-full hover:bg-white/40 text-white transition-colors">
                         <X className="w-5 h-5" />
                     </button>

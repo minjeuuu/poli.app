@@ -24,7 +24,7 @@ const TranslateTab: React.FC = () => {
     return (
         <div className="h-full flex flex-col bg-academic-bg dark:bg-stone-950 p-6 md:p-12 overflow-y-auto">
             <div className="max-w-4xl mx-auto w-full space-y-8">
-                <div className="bg-gradient-to-r from-indigo-900 to-purple-900 text-white p-10 rounded-3xl shadow-xl relative overflow-hidden">
+                <div className="bg-white dark:bg-stone-900 text-white p-10 rounded-3xl shadow-xl relative overflow-hidden">
                     <div className="absolute top-0 right-0 w-96 h-96 bg-white/5 rounded-full -mr-32 -mt-32 blur-3xl"></div>
                     <h2 className="text-4xl font-serif font-bold mb-4 relative z-10 flex items-center gap-4"><TranslateIcon className="w-10 h-10" /> Universal Linguistic Engine</h2>
                     <p className="text-white/70 text-lg relative z-10 max-w-2xl font-serif leading-relaxed">

@@ -161,7 +161,7 @@ const PersonsTab: React.FC<PersonsTabProps> = ({ onNavigate, onAddToCompare, onT
          
          {/* 1. HERO HEADER */}
          {navStack.length === 0 && (
-            <div className="p-10 bg-gradient-to-b from-white to-academic-bg dark:from-stone-900 dark:to-stone-950 border-b border-academic-line dark:border-stone-800 transition-colors flex-none">
+            <div className="p-10 bg-white dark:bg-stone-900 dark:from-stone-900 dark:to-stone-950 border-b border-academic-line dark:border-stone-800 transition-colors flex-none">
                 <div className="max-w-5xl mx-auto">
                     <div className="flex items-center gap-3 mb-6 text-academic-gold">
                         <Hexagon className="w-10 h-10 fill-academic-gold/10" />
@@ -328,7 +328,7 @@ const PersonCard = ({ item, viewMode, onClick, icon: Icon, colorClass, activeMen
                 ${viewMode === 'list' ? 'flex items-center p-3 gap-4' : 'p-6 flex flex-col justify-between min-h-[140px]'}`}
             >
                 {/* Decorative BG */}
-                {viewMode !== 'list' && <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-stone-50 to-transparent dark:from-stone-800/30 rounded-bl-full -mr-10 -mt-10 z-0 group-hover:scale-110 transition-transform duration-500"></div>}
+                {viewMode !== 'list' && <div className="absolute top-0 right-0 w-32 h-32 bg-white dark:bg-stone-900 dark:from-stone-800/30 rounded-bl-full -mr-10 -mt-10 z-0 group-hover:scale-110 transition-transform duration-500"></div>}
 
                 <div className={`relative z-10 flex ${viewMode === 'list' ? 'items-center gap-4' : 'flex-col h-full'}`}>
                     <div className={`${viewMode === 'list' ? `p-2 rounded-lg ${colorClass}` : 'mb-4 flex justify-between items-start'}`}>

@@ -72,7 +72,7 @@ export default function ResearchTab({ onNavigate }: Props) {
             <div className="bg-white dark:bg-stone-900 border-b border-stone-200 dark:border-stone-800 p-6">
                 <div className="max-w-6xl mx-auto">
                     <div className="flex items-center gap-3 mb-4">
-                        <div className="p-3 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl">
+                        <div className="p-3 bg-white dark:bg-stone-900 rounded-xl">
                             <Microscope className="w-8 h-8 text-white" />
                         </div>
                         <div>
@@ -120,7 +120,7 @@ export default function ResearchTab({ onNavigate }: Props) {
                     {/* OVERVIEW */}
                     {activeSection === 'overview' && (
                         <div className="space-y-6">
-                            <section className="bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-950/20 dark:to-purple-950/20 p-8 rounded-2xl border border-blue-200 dark:border-blue-900">
+                            <section className="bg-white dark:bg-stone-900 dark:from-blue-950/20 dark:to-purple-950/20 p-8 rounded-2xl border border-blue-200 dark:border-blue-900">
                                 <Sparkles className="w-12 h-12 text-blue-600 dark:text-blue-400 mb-4" />
                                 <h2 className="text-2xl font-bold text-academic-primary dark:text-white mb-3">Welcome to the Research Lab</h2>
                                 <p className="text-academic-secondary dark:text-stone-300 leading-relaxed mb-4">
@@ -283,7 +283,7 @@ export default function ResearchTab({ onNavigate }: Props) {
                     {/* ETHICS */}
                     {activeSection === 'ethics' && (
                         <div className="space-y-6">
-                            <section className="bg-gradient-to-br from-red-50 to-orange-50 dark:from-red-950/20 dark:to-orange-950/20 p-8 rounded-2xl border border-red-200 dark:border-red-900">
+                            <section className="bg-white dark:bg-stone-900 dark:from-red-950/20 dark:to-orange-950/20 p-8 rounded-2xl border border-red-200 dark:border-red-900">
                                 <Users className="w-12 h-12 text-red-600 dark:text-red-400 mb-4" />
                                 <h2 className="text-2xl font-bold text-academic-primary dark:text-white mb-3">Research Ethics</h2>
                                 <p className="text-academic-secondary dark:text-stone-300 leading-relaxed">
